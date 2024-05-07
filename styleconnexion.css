@@ -1,0 +1,28 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 40px;
+    background-color: #e7f3ff;
+    color:black;
+    height: 100%; 
+    margin: 0;    
+    padding: 0; 
+}
+header {
+    background-color:#e7f3ff;
+    color: black;
+    padding: 10px 20px;
+    text-align: center;
+}
+main {
+    padding: 10px 30px;
+    text-align: center; 
+    background-color: #e7f3ff;
+}
+form{
+    padding: 10px 750px;
+}
+
+footer {
+    text-align: center;
+    background-color: #e7f3ff;    
+}
