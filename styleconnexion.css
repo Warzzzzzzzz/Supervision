@@ -2,52 +2,46 @@
 
 body {
     font-family: Arial, sans-serif;
-    margin: 40px;
-    background-color: #e7f3ff;
-    color:black;
-    height: 100%; 
-    margin: 0;    
-    padding: 0; 
+    margin: 0;
+    padding: 0;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-}
-header {
-    background-color:#e7f3ff;
-    color: black;
-    padding: 10px 20px;
-    text-align: center;
-    font-family: "Poetsen One", sans-serif;
-    font-weight: 400;
-    font-style: normal;
-}
-main {
-    padding: 10px 30px;
-    text-align: center; 
     background-color: #e7f3ff;
-    flex: 1;
-    font-family: "Poetsen One", sans-serif;
-    font-weight: 400;
-    font-style: normal;
+    color: black;
 }
-form{
-    padding: 10px 750px;
+
+header, main, form, footer {
+    background-color: #e7f3ff;
+    padding: 10px 20px;
     font-family: "Poetsen One", sans-serif;
     font-weight: 400;
     font-style: normal;
 }
 
+header {
+    text-align: center;
+}
+
+main {
+    text-align: center;
+    flex: 1;
+}
+
+form {
+    text-align: center;
+}
+
 footer {
     text-align: center;
-    background-color: #e7f3ff;    
-    padding: 0px 0;
-    width: 100%;
     position: fixed;
     bottom: 0;
-    font-family: "Poetsen One", sans-serif;
-    font-weight: 400;
-    font-style: normal;
+    width: 100%;
 }
-.vh-40 {
-    min-height: 40vh; /* Ajuste la hauteur du contenu à 100% de la hauteur de la fenêtre */
+
+/* Media queries pour rendre le design responsive */
+@media screen and (max-width: 768px) {
+    header, main, form, footer {
+        padding: 10px;
+    }
 }
