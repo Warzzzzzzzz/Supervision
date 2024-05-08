@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=Poetsen+One&display=swap');
+
 body {
     font-family: Arial, sans-serif;
     margin: 40px;
@@ -10,18 +12,23 @@ body {
     flex-direction: column;
     min-height: 100vh;
 }
-header {
-    
+header {  
     background-color:#e7f3ff;
     color: black;
     padding: 10px 20px;
     text-align: center;
+    font-family: "Poetsen One", sans-serif;
+    font-weight: 400;
+    font-style: normal;
 }
 main {
    
     text-align: center; 
     background-color: #e7f3ff;
     flex: 1;
+    font-family: "Poetsen One", sans-serif;
+    font-weight: 400;
+    font-style: normal;
 }
 
 footer {
@@ -31,4 +38,7 @@ footer {
     width: 100%;
     position: fixed;
     bottom: 0;
+    font-family: "Poetsen One", sans-serif;
+    font-weight: 400;
+    font-style: normal;
 }
