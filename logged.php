@@ -12,7 +12,8 @@
 <body>
     <header>
         <div>
-          <H1>Supervision Inter-Ville</H1>
+          <H1>Supervision Inter-Ville</H1> 
+          <span class="badge text-bg-danger">ADMIN</span>
             <nav class="navbar navbar-expand-lg  bg-body-tertiary"data-bs-theme="dark">
                 <div class="container-fluid">
                     <a class="navbar-brand" href="#"></a>
@@ -22,22 +23,36 @@
                   <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav">
                       <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#">Accueil</a>
+                        <a class="nav-link active" aria-current="page" href="dashboard.php">DashBoard</a>
                       </li>
                       <li class="nav-item">
-                        <a class="nav-link" href="presentation.html">Présentation</a>
+                        <a class="nav-link" href="listedesequipement.php">Listes des équipements</a>
                       </li>
                       <li class="nav-item">
-                        <a class="nav-link" href="connexion.php">Accès Supervision</a>
+                        <a class="nav-link" href="latence.php">Latence</a>
                       </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="logs.php">Logs</a>
+                      </li>
+                      <form method="post" action="logout.php">
+            <button type="submit" class="btn btn-danger">Se Déconnecter</button>
+        </form>
                     </ul>
                   </div>
                 </div>
               </nav>
+              <?php
+session_start();
+
+// Vérifier si l'utilisateur est connecté
+if (!isset($_SESSION['username'])) {
+    header('Location: index.html');
+    exit;
+}
+?>
         </div>
     </header>
     <main>
-        <p> REDIRECTION FAITE </P>
     </main>
     <footer>
         <p>Projet Supervision Inter-Ville réaliser par Nicolas LEGAL et Cyril RESCUER |2022-2024|</p>
