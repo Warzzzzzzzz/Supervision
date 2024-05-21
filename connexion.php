@@ -56,14 +56,15 @@
     <input type="password" class="form-control" id="password" name="password">
   </div>
   <button name="submit" type="submit" class="btn btn-danger">Se connecter</button>
-        <?php
+</div>
+      </form>
+<?php
+
 include("login.php");
 
 $message = '';
 
-session_start();
-
-if(isset($_POST['submit'])) {
+if (isset ($_POST['submit']) && isset ($_POST['username']) && isset($_POST['password'])) {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
@@ -72,17 +73,15 @@ if(isset($_POST['submit'])) {
     $stmt->execute(['username' => $username]);
     $user = $stmt->fetch();
 
-    if ($user && password_verify($password, $user['password'])) {
+    if ($user && password_verify($password, $username['password'])) {
+        session_start();
         $_SESSION['username'] = $user['username'];
         header('Location: logged.php');
-        exit;
     } else {
         $message = 'Mauvais identifiants';
     }
 }
 ?>
-</div>
-      </form>
     </div>
     </main>
     <footer>
