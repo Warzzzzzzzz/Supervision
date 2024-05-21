@@ -1,11 +1,12 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Présentation du Projet</title>
+    <title>Accès Supervision</title>
     <link rel="icon" href="logo.png">
-    <link rel="stylesheet" href="stylepresentation.css">
+    <link rel="stylesheet" href="styleconnexion.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </head>
@@ -28,7 +29,7 @@
                         <a class="nav-link" href="presentation.html">Présentation</a>
                       </li>
                       <li class="nav-item">
-                        <a class="nav-link" href="connexion.php">Accès Supervision</a>
+                        <a class="nav-link" href="connexion.html">Accès Supervision</a>
                       </li>
                     </ul>
                   </div>
@@ -40,10 +41,49 @@
       <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="index.html">Accueil</a></li>
-          <li class="breadcrumb-item active" aria-current="page">Présentation</li>
+          <li class="breadcrumb-item active" aria-current="page">Accès Supervision</li>
         </ol>
       </nav>
-      <img src="presentation.png" alt="presentation">
+      <h2>Connexion Supervision</h2>
+      <div class="d-flex justify-content-center align-items-center vh-40" >
+      <form method="post">
+  <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
+    <label for="username" class="user">Nom d'utilisateur</label>
+    <input type="text" class="form-control" id="username" name="username" aria-describedby="username" required>
+  </div>
+  <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
+    <label for="password" class="user">Mot de Passe</label>
+    <input type="password" class="form-control" id="password" name="password">
+  </div>
+  <button name="submit" type="submit" class="btn btn-danger">Se connecter</button>
+        <?php
+include("login.php");
+
+$message = '';
+
+session_start();
+
+if(isset($_POST['submit'])) {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+
+    $sql = "SELECT * FROM users WHERE username = :username" ;
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute(['username' => $username]);
+    $user = $stmt->fetch();
+
+    if ($user && password_verify($password, $user['password'])) {
+        $_SESSION['username'] = $user['username'];
+        header('Location: logged.php');
+        exit;
+    } else {
+        $message = 'Mauvais identifiants';
+    }
+}
+?>
+</div>
+      </form>
+    </div>
     </main>
     <footer>
       <p>Projet Supervision Inter-Ville réaliser par Nicolas LEGAL et Cyril RESCUER |2022-2024|</p>
