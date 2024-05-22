@@ -50,7 +50,7 @@ if (!isset($_SESSION['username'])) {
     <main>
     <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="logged.php">Accueil Connéxion</a></li>
+          <li class="breadcrumb-item"><a href="logged.php">Accueil Connexion</a></li>
           <li class="breadcrumb-item active" aria-current="page">DashBoard</li>
         </ol>
       </nav>

@@ -54,7 +54,7 @@ if (!isset($_SESSION['username'])) {
         </ol>
       </nav>
       <p>Connexion réussie</p>
-      <img src="valide.png" class="valide">
+      <img src="./image/valide.png" class="valide">
     </main>
     <footer>
         <p>Projet Supervision Inter-Ville réaliser par Nicolas LEGAL et Cyril RESCUER |2022-2024|</p>

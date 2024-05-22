@@ -50,18 +50,11 @@ if (!isset($_SESSION['username'])) {
     <main>
     <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="logged.php">Accueil Connéxion</a></li>
+          <li class="breadcrumb-item"><a href="logged.php">Accueil Connexion</a></li>
           <li class="breadcrumb-item active" aria-current="page">Liste des équipements</li>
         </ol>
       </nav>  
-      <form id="searchForm">
-      <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
-        <label for="searchInput">Rechercher :</label>
-        <input type="text" id="searchInput" name="search">
-        <button type="submit">Chercher</button>
-    </form>
-    </main>
-    
+    </main>  
     <footer>
         <p>Projet Supervision Inter-Ville réaliser par Nicolas LEGAL et Cyril RESCUER |2022-2024|</p>
     </footer>
