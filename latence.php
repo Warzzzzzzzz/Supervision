@@ -13,7 +13,7 @@
     <header>
         <div>
           <H1>Supervision Inter-Ville</H1> 
-          <form method="post" action="logout.php">
+          <form class="form-deconnexion" method="post" action="logout.php">
             <button type="submit" class="btn btn-danger">Se Déconnecter</button>
         </form>
         <nav class="navbar navbar-expand-lg  bg-body-tertiary"data-bs-theme="dark">
@@ -32,6 +32,9 @@
                       </li>
                       <li class="nav-item">
                         <a class="nav-link" href="logs.php">Logs</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="gestionutilisateurs.php">Gestion utilisateurs</a>
                       </li>
                     </ul>
                   </div>

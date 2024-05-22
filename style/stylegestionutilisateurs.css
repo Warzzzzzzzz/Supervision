@@ -10,7 +10,7 @@ body {
     color: black;
 }
 
-header, main, footer {
+header, main, form, footer {
     background-color: #e7f3ff;
     padding: 10px 20px;
     font-family: "Poetsen One", sans-serif;
@@ -26,6 +26,7 @@ main {
     text-align: center;
     flex: 1;
 }
+
 .form-deconnexion {
     text-align: right;
     padding: 5px 40px;
@@ -35,11 +36,4 @@ footer {
     position: fixed;
     bottom: 0;
     width: 100%;
-}
-
-/* Media queries pour rendre le design responsive */
-@media screen and (max-width: 768px) {
-    header, main, form, footer {
-        padding: 10px;
-    }
 }

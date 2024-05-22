@@ -26,7 +26,7 @@ main {
     text-align: center;
     flex: 1;
 }
-form {
+.form-deconnexion {
     text-align: right;
     padding: 5px 40px;
 }
