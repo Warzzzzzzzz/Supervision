@@ -45,14 +45,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
          // Mot de passe incorrect
          echo "Mot de passe incorrect.";
      }
- } else {
-     // Nom d'utilisateur incorrect
-     echo "Nom d'utilisateur incorrect.";
  }
 
 $stmt->close();
 }
-
-
 
 ?>

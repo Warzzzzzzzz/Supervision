@@ -80,6 +80,11 @@ $conn->close();
         </div>
     </header>
     <main>
+    <?php if ($message): ?>
+            <div class="alert alert-info" role="alert">
+                <?php echo $message; ?>
+            </div>
+        <?php endif; ?></div>
         <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="logged.php">Accueil Connexion</a></li>
@@ -123,11 +128,6 @@ $conn->close();
                 <button name="submit" type="submit" class="btn btn-danger">Créer le compte</button>
             </form>
         </div>
-        <?php if ($message): ?>
-            <div class="alert alert-info" role="alert">
-                <?php echo $message; ?>
-            </div>
-        <?php endif; ?></div>
     </div>
   </div>
   <div class="accordion-item">

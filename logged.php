@@ -64,7 +64,7 @@ if (!isset($_SESSION['username'])) {
     </form>
 </div>
 <div class="d-inline-block">
-    <form class="form-listedesequipements" method="post" action="listedesequipements.php">
+    <form class="form-listedesequipements" method="post" action="listedesequipement.php">
         <button type="submit" class="btn btn-primary">Liste des équipements</button>
     </form>
 </div>
