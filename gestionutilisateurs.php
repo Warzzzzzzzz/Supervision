@@ -140,22 +140,27 @@ $conn->close();
       <div class="accordion-body">      <div class="accordion-body"><h2>Supprimer un utilisateurs</h2>
         <div class="d-flex justify-content-center align-items-center vh-40">
         <form method="post">
+        <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
         <label for="nom">Nom:</label>
-        <input type="text" id="nom" name="nom" required><br><br>
-        
+        <input type="text" id="nom" class="form-control" name="nom" required><br><br>
+    </div>
+    <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
         <label for="prenom">Prénom:</label>
-        <input type="text" id="prenom" name="prenom" required><br><br>
-        
+        <input type="text" id="prenom" name="prenom" class="form-control" required><br><br>
+        </div>
+        <div class="shadow p-2 mb-4 bg-body-tertiary rounded">    
         <label for="type">Type d'utilisateur:</label>
-        <select id="type" name="type" required>
+        <select id="type" class="form-control"  name="type" required>
             <option value="A">Administrateur</option>
             <option value="T">Technicien</option>
         </select><br><br>
-        
+        </div>
+        <div class="shadow p-2 mb-4 bg-body-tertiary rounded">  
         <label for="username">Nom d'utilisateur:</label>
-        <input type="text" id="username" name="username" required><br><br>
+        <input type="text" id="username" class="form-control" name="username" required><br><br>
+        </div>
         
-        <button type="submit" name="submit">Supprimer l'utilisateur</button>
+        <button type="submit" name="submit" class="btn btn-danger" >Supprimer l'utilisateur</button>
     </form>
 </div>
     </div>
