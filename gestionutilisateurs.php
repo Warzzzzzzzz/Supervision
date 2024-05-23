@@ -32,41 +32,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 $sql = "SELECT nom_users, prenom_user, TYPE_USERS, username FROM users";
 $result = $conn->query($sql);
-
-if (isset($_POST['submit'])) {
-    // Récupérer les valeurs du formulaire
-    $nom = $_POST['nom'];
-    $prenom = $_POST['prenom'];
-    $type = $_POST['type'];
-    $username = $_POST['username'];
-
-    // Inclure le fichier de connexion à la base de données
-    include("login.php");
-
-    // Requête de suppression d'utilisateur
-    $sql = "DELETE FROM users WHERE nom_users = ? AND prenom_user = ? AND TYPE_USERS = ? AND username = ?";
-    $stmt = $conn->prepare($sql);
-
-    // Vérifier si la requête est prête
-    if ($stmt) {
-        // Binder les paramètres
-        $stmt->bind_param("ssss", $nom, $prenom, $type, $username);
-        
-        // Exécuter la requête
-        if ($stmt->execute()) {
-            echo "<p>L'utilisateur a été supprimé avec succès.</p>";
-        } else {
-            echo "<p>Erreur lors de la suppression de l'utilisateur: " . $stmt->error . "</p>";
-        }
-
-        // Fermer le statement
-        $stmt->close();
-    } else {
-        echo "<p>Erreur lors de la préparation de la requête: " . $conn->error . "</p>";
-    }
-
-}
-
 $conn->close();
 ?>
 
@@ -94,7 +59,7 @@ $conn->close();
                         <span class="badge text-bg-danger">ADMIN</span>
                         <ul class="navbar-nav">
                             <li class="nav-item">
-                                <a class="nav-link active" aria-current="page" href="dashboard.php">DashBoard</a>
+                                <a class="nav-link" aria-current="page" href="dashboard.php">DashBoard</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="listedesequipement.php">Listes des équipements</a>
@@ -117,7 +82,7 @@ $conn->close();
     <main>
         <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="index.html">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="logged.php">Accueil Connexion</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Gestion utilisateurs</li>
             </ol>
         </nav>
@@ -155,7 +120,7 @@ $conn->close();
                         <option value="T">Technicien</option>
                     </select>
                 </div>
-                <button name="submit" type="submit" class="btn btn-danger">S'inscrire</button>
+                <button name="submit" type="submit" class="btn btn-danger">Créer le compte</button>
             </form>
         </div>
         <?php if ($message): ?>

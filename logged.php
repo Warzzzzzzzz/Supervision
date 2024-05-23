@@ -32,7 +32,7 @@ if (!isset($_SESSION['username'])) {
                   <span class="badge text-bg-danger">ADMIN</span>
                     <ul class="navbar-nav">
                       <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="dashboard.php">DashBoard</a>
+                        <a class="nav-link" aria-current="page" href="dashboard.php">DashBoard</a>
                       </li>
                       <li class="nav-item">
                         <a class="nav-link" href="listedesequipement.php">Listes des équipements</a>
@@ -58,8 +58,31 @@ if (!isset($_SESSION['username'])) {
           <li class="breadcrumb-item"><a href="logged.php">Accueil Connexion</a></li>
         </ol>
       </nav>
-      <p>Connexion réussie</p>
-      <img src="./image/valide.png" class="valide">
+      <div class="d-inline-block">
+    <form class="form-dashboard" method="post" action="dashboard.php">
+        <button type="submit" class="btn btn-primary">Dashboard</button>
+    </form>
+</div>
+<div class="d-inline-block">
+    <form class="form-listedesequipements" method="post" action="listedesequipements.php">
+        <button type="submit" class="btn btn-primary">Liste des équipements</button>
+    </form>
+</div>
+<div class="d-inline-block">
+    <form class="form-latence" method="post" action="latence.php">
+        <button type="submit" class="btn btn-primary">Latence</button>
+    </form>
+</div>
+<div class="d-inline-block">
+    <form class="form-logs" method="post" action="logs.php">
+        <button type="submit" class="btn btn-primary">Logs</button>
+    </form>
+</div>
+<div class="d-inline-block">
+    <form class="form-gestionutilisateurs" method="post" action="gestionutilisateurs.php">
+        <button type="submit" class="btn btn-primary">Gestion utilisateurs</button>
+    </form>
+</div>
     </main>
     <footer>
         <p>Projet Supervision Inter-Ville réaliser par Nicolas LEGAL et Cyril RESCUER |2022-2024|</p>

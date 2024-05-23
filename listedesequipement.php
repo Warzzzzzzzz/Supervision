@@ -22,7 +22,7 @@
                   <span class="badge text-bg-danger">ADMIN</span>
                     <ul class="navbar-nav">
                       <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="dashboard.php">DashBoard</a>
+                        <a class="nav-link" aria-current="page" href="dashboard.php">DashBoard</a>
                       </li>
                       <li class="nav-item">
                         <a class="nav-link" href="listedesequipement.php">Listes des équipements</a>
