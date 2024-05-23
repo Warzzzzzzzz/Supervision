@@ -33,9 +33,11 @@
                       <li class="nav-item">
                         <a class="nav-link" href="logs.php">Logs</a>
                       </li>
-                      <li class="nav-item">
-                        <a class="nav-link" href="gestionutilisateurs.php">Gestion utilisateurs</a>
-                      </li>
+                      <?php if (isset($_SESSION['type_user']) && $_SESSION['type_user'] === 'A') : ?>
+                            <li id="gestionUser" class="nav-item">
+                                <a class="nav-link" href="gestionutilisateurs.php">Gestion utilisateurs</a>
+                            </li>
+                        <?php endif; ?>
                     </ul>
                   </div>
                 </div>

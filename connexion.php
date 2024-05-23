@@ -58,30 +58,36 @@
   <button name="submit" type="submit" class="btn btn-danger">Se connecter</button>
 </div>
       </form>
-<?php
+      <?php
 
 include("login.php");
 
 $message = '';
 
-if (isset ($_POST['submit']) && isset ($_POST['username']) && isset($_POST['password'])) {
+if (isset($_POST['submit']) && isset($_POST['username']) && isset($_POST['password'])) {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    $sql = "SELECT * FROM users WHERE username = :username" ;
+    $sql = "SELECT * FROM users WHERE username = :username";
+
+    var_dump($sql);
+
     $stmt = $pdo->prepare($sql);
     $stmt->execute(['username' => $username]);
     $user = $stmt->fetch();
 
-    if ($user && password_verify($password, $username['password'])) {
+    if ($user && password_verify($password, $user['password'])) {
         session_start();
         $_SESSION['username'] = $user['username'];
+        $_SESSION['type_users'] = $user['type_users'];
         header('Location: logged.php');
+        exit();
     } else {
         $message = 'Mauvais identifiants';
     }
 }
 ?>
+
     </div>
     </main>
     <footer>

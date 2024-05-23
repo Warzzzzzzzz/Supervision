@@ -22,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST['password'];
 
     // Requête pour sélectionner l'utilisateur
-    $sql = "SELECT ID_USERS, username, password FROM users WHERE username = ?";
+    $sql = "SELECT ID_USERS, type_users, username, password FROM users WHERE username = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $username);
     $stmt->execute();
@@ -31,6 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($result->num_rows > 0) {
      // Obtenir les données de l'utilisateur
      $user = $result->fetch_assoc();
+     $type_users =$result->fetch_assoc();
 
      // Vérifier le mot de passe
      if ($password === $user['password']) {
@@ -53,4 +54,5 @@ $stmt->close();
 }
 
 $conn->close();
+
 ?>
