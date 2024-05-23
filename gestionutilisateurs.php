@@ -1,12 +1,75 @@
 <?php
-session_start();
+include("login.php"); // Assurez-vous que ce fichier contient la connexion à la base de données
 
-// Vérifier si l'utilisateur est connecté
-if (!isset($_SESSION['username'])) {
-    header('Location: connexion.php');
-    exit();
+$message = '';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (isset($_POST['submit'])) {
+        $nom_users = $_POST['nom_users'];
+        $prenom_user = $_POST['prenom_user'];
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+        $type_users = $_POST['type_users'];
+
+        // Préparation et exécution de la requête d'insertion
+        $sql = "INSERT INTO users (nom_users, prenom_user, username, password, TYPE_USERS) VALUES (?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        if ($stmt) {
+            $stmt->bind_param("sssss", $nom_users, $prenom_user, $username, $password, $type_users);
+
+            if ($stmt->execute()) {
+                $message = 'Compte créé avec succès';
+            } else {
+                $message = 'Erreur lors de la création du compte: ' . $stmt->error;
+            }
+
+            $stmt->close();
+        } else {
+            $message = 'Erreur de préparation de la requête: ' . $conn->error;
+        }
+    }
 }
+
+$sql = "SELECT nom_users, prenom_user, TYPE_USERS, username FROM users";
+$result = $conn->query($sql);
+
+if (isset($_POST['submit'])) {
+    // Récupérer les valeurs du formulaire
+    $nom = $_POST['nom'];
+    $prenom = $_POST['prenom'];
+    $type = $_POST['type'];
+    $username = $_POST['username'];
+
+    // Inclure le fichier de connexion à la base de données
+    include("login.php");
+
+    // Requête de suppression d'utilisateur
+    $sql = "DELETE FROM users WHERE nom_users = ? AND prenom_user = ? AND TYPE_USERS = ? AND username = ?";
+    $stmt = $conn->prepare($sql);
+
+    // Vérifier si la requête est prête
+    if ($stmt) {
+        // Binder les paramètres
+        $stmt->bind_param("ssss", $nom, $prenom, $type, $username);
+        
+        // Exécuter la requête
+        if ($stmt->execute()) {
+            echo "<p>L'utilisateur a été supprimé avec succès.</p>";
+        } else {
+            echo "<p>Erreur lors de la suppression de l'utilisateur: " . $stmt->error . "</p>";
+        }
+
+        // Fermer le statement
+        $stmt->close();
+    } else {
+        echo "<p>Erreur lors de la préparation de la requête: " . $conn->error . "</p>";
+    }
+
+}
+
+$conn->close();
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -42,11 +105,9 @@ if (!isset($_SESSION['username'])) {
                             <li class="nav-item">
                                 <a class="nav-link" href="logs.php">Logs</a>
                             </li>
-                            <?php if (isset($_SESSION['type_user']) && $_SESSION['type_user'] === 'A') : ?>
-                            <li id="gestionUser" class="nav-item">
-                                <a class="nav-link" href="gestionutilisateurs.php">Gestion utilisateurs</a>
-                            </li>
-                            <?php endif; ?>
+                            <li class="nav-item">
+                        <a class="nav-link" href="gestionutilisateurs.php">Gestion Utilisateurs</a>
+                      </li>
                         </ul>
                     </div>
                 </div>
@@ -56,35 +117,121 @@ if (!isset($_SESSION['username'])) {
     <main>
         <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="logged.php">Accueil Connexion</a></li>
+                <li class="breadcrumb-item"><a href="index.html">Accueil</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Gestion utilisateurs</li>
             </ol>
         </nav>
-        <form method="post" action="adduser.php">
-            <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
-                <label for="username" class="user">Nom</label>
-                <input type="text" class="form-control" id="username" name="username" aria-describedby="username" required>
+ <div class="accordion accordion-flush" id="accordionFlushExample">
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+        Créer un utilisateur
+      </button>
+    </h2>
+    <div id="flush-collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+      <div class="accordion-body"><h2>Créer un compte</h2>
+        <div class="d-flex justify-content-center align-items-center vh-40">
+            <form method="post">
+                <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
+                    <label for="nom_users" class="user">Nom</label>
+                    <input type="text" class="form-control" id="nom_users" name="nom_users" aria-describedby="nom_users" required>
+                </div>
+                <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
+                    <label for="prenom_user" class="user">Prénom</label>
+                    <input type="text" class="form-control" id="prenom_user" name="prenom_user" aria-describedby="prenom_user" required>
+                </div>
+                <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
+                    <label for="username" class="user">Nom d'utilisateur</label>
+                    <input type="text" class="form-control" id="username" name="username" aria-describedby="username" required>
+                </div>
+                <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
+                    <label for="password" class="user">Mot de Passe</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
+                    <label for="type_users" class="user">Type d'utilisateur</label>
+                    <select class="form-control" id="type_users" name="type_users" required>
+                        <option value="A">Administrateur</option>
+                        <option value="T">Technicien</option>
+                    </select>
+                </div>
+                <button name="submit" type="submit" class="btn btn-danger">S'inscrire</button>
+            </form>
+        </div>
+        <?php if ($message): ?>
+            <div class="alert alert-info" role="alert">
+                <?php echo $message; ?>
             </div>
-            <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
-                <label for="prenom" class="user">Prénom</label>
-                <input type="text" class="form-control" id="prenom" name="prenom" aria-describedby="prenom" required>
-            </div>
-            <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
-                <label for="role">Rôle :</label>
-                <select id="role" name="role" required>
-                    <option value="A">Administrateur</option>
-                    <option value="T">Technicien</option>
-                </select>
-            </div>
-            <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
-                <label for="password" class="user">Créer un mot de Passe</label>
-                <input type="password" class="form-control" id="password" name="password" required>
-            </div>
-            <button name="submit" type="submit" class="btn btn-danger">Créer un compte</button>
-        </form>
+        <?php endif; ?></div>
+    </div>
+  </div>
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
+        Supprimer un utilisateur
+      </button>
+    </h2>
+    <div id="flush-collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+      <div class="accordion-body">      <div class="accordion-body"><h2>Supprimer un utilisateurs</h2>
+        <div class="d-flex justify-content-center align-items-center vh-40">
+        <form method="post">
+        <label for="nom">Nom:</label>
+        <input type="text" id="nom" name="nom" required><br><br>
+        
+        <label for="prenom">Prénom:</label>
+        <input type="text" id="prenom" name="prenom" required><br><br>
+        
+        <label for="type">Type d'utilisateur:</label>
+        <select id="type" name="type" required>
+            <option value="A">Administrateur</option>
+            <option value="T">Technicien</option>
+        </select><br><br>
+        
+        <label for="username">Nom d'utilisateur:</label>
+        <input type="text" id="username" name="username" required><br><br>
+        
+        <button type="submit" name="submit">Supprimer l'utilisateur</button>
+    </form>
+</div>
+    </div>
+  </div>
+  </div>
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseThree" aria-expanded="false" aria-controls="flush-collapseThree">
+      Liste des utilisateurs
+      </button>
+    </h2>
+    <div id="flush-collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+      <div class="accordion-body">  <table>
+        <tr>
+            <th>Nom</th>
+            <th>Prénom</th>
+            <th>Type d'utilisateur</th>
+            <th>Nom d'utilisateur</th>
+        </tr>
+        <?php
+        // Vérifier s'il y a des utilisateurs
+        if ($result->num_rows > 0) {
+            // Parcourir les résultats de la requête
+            while ($row = $result->fetch_assoc()) {
+                echo "<tr>";
+                echo "<td>" . $row['nom_users'] . "</td>";
+                echo "<td>" . $row['prenom_user'] . "</td>";
+                echo "<td>" . $row['TYPE_USERS'] . "</td>";
+                echo "<td>" . $row['username'] . "</td>";
+                echo "</tr>";
+            }
+        } else {
+            echo "<tr><td colspan='4'>Aucun utilisateur trouvé.</td></tr>";
+        }
+        ?>
+    </table>
+  </div>
+</div>
     </main>
     <footer>
-        <p>Projet Supervision Inter-Ville réaliser par Nicolas LEGAL et Cyril RESCUER |2022-2024|</p>
+        <p>Projet Supervision Inter-Ville réalisé par Nicolas LEGAL et Cyril RESCUER |2022-2024|</p>
     </footer>
 </body>
 </html>

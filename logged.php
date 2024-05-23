@@ -43,13 +43,9 @@ if (!isset($_SESSION['username'])) {
                       <li class="nav-item">
                         <a class="nav-link" href="logs.php">Logs</a>
                       </li>
-                          <li id="gestionUser" class="nav-item">
-                              <?php
-                              if($_SESSION['type_users'] == 'A'){
-                                echo "<a class=\"nav-link\" href=\"gestionutilisateurs.php\"  >Gestion utilisateurs</a>";
-                              }
-                              ?>
-                            </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="gestionutilisateurs.php">Gestion Utilisateurs</a>
+                      </li>
                        </ul>
                   </div>
                 </div>

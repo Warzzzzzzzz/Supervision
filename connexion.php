@@ -70,8 +70,6 @@ if (isset($_POST['submit']) && isset($_POST['username']) && isset($_POST['passwo
 
     $sql = "SELECT * FROM users WHERE username = :username";
 
-    var_dump($sql);
-
     $stmt = $pdo->prepare($sql);
     $stmt->execute(['username' => $username]);
     $user = $stmt->fetch();
