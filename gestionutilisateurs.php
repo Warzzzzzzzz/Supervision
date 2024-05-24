@@ -3,6 +3,10 @@ include("login.php"); // Assurez-vous que ce fichier contient la connexion à la
 
 $message = '';
 
+if (isset($_GET['message'])) {
+    $message = $_GET['message'];
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['submit'])) {
         $nom_users = $_POST['nom_users'];
@@ -30,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-$sql = "SELECT nom_users, prenom_user, TYPE_USERS, username FROM users";
+$sql = "SELECT id_users, nom_users, prenom_user, TYPE_USERS, username FROM users";
 $result = $conn->query($sql);
 $conn->close();
 ?>
@@ -81,124 +85,100 @@ $conn->close();
     </header>
     <main>
     <?php if ($message): ?>
-            <div class="alert alert-info" role="alert">
-                <?php echo $message; ?>
+        <div class="alert alert-info" role="alert">
+            <?php echo $message; ?>
+        </div>
+    <?php endif; ?>
+    <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="logged.php">Accueil Connexion</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Gestion utilisateurs</li>
+        </ol>
+    </nav>
+    <div class="accordion accordion-flush" id="accordionFlushExample">
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                    Créer un utilisateur
+                </button>
+            </h2>
+            <div id="flush-collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                <div class="accordion-body">
+                    <h2>Créer un compte</h2>
+                    <div class="d-flex justify-content-center align-items-center vh-40">
+                        <form method="post">
+                            <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
+                                <label for="nom_users" class="user">Nom</label>
+                                <input type="text" class="form-control" id="nom_users" name="nom_users" aria-describedby="nom_users" required>
+                            </div>
+                            <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
+                                <label for="prenom_user" class="user">Prénom</label>
+                                <input type="text" class="form-control" id="prenom_user" name="prenom_user" aria-describedby="prenom_user" required>
+                            </div>
+                            <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
+                                <label for="username" class="user">Nom d'utilisateur</label>
+                                <input type="text" class="form-control" id="username" name="username" aria-describedby="username" required>
+                            </div>
+                            <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
+                                <label for="password" class="user">Mot de Passe</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                            <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
+                                <label for="type_users" class="user">Type d'utilisateur</label>
+                                <select class="form-control" id="type_users" name="type_users" required>
+                                    <option value="A">Administrateur</option>
+                                    <option value="T">Technicien</option>
+                                </select>
+                            </div>
+                            <button name="submit" type="submit" class="btn btn-danger">Créer le compte</button>
+                        </form>
+                    </div>
+                </div>
             </div>
-        <?php endif; ?></div>
-        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="logged.php">Accueil Connexion</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Gestion utilisateurs</li>
-            </ol>
-        </nav>
- <div class="accordion accordion-flush" id="accordionFlushExample">
-  <div class="accordion-item">
-    <h2 class="accordion-header">
-      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
-        Créer un utilisateur
-      </button>
-    </h2>
-    <div id="flush-collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
-      <div class="accordion-body"><h2>Créer un compte</h2>
-        <div class="d-flex justify-content-center align-items-center vh-40">
-            <form method="post">
-                <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
-                    <label for="nom_users" class="user">Nom</label>
-                    <input type="text" class="form-control" id="nom_users" name="nom_users" aria-describedby="nom_users" required>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseThree" aria-expanded="false" aria-controls="flush-collapseThree">
+                    Liste des utilisateurs
+                </button>
+            </h2>
+            <div id="flush-collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                <div class="accordion-body">
+                    <table>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Prénom</th>
+                            <th>Type d'utilisateurs</th>
+                            <th>Nom d'utilisateurs</th>
+                            <th>Suppression d'utilisateurs</th>
+                        </tr>
+                        <?php
+                        // Vérifier s'il y a des utilisateurs
+                        if ($result->num_rows > 0) {
+                            // Parcourir les résultats de la requête
+                            while ($row = $result->fetch_assoc()) {
+                                echo "<tr>";
+                                echo "<td>" . $row['nom_users'] . "</td>";
+                                echo "<td>" . $row['prenom_user'] . "</td>";
+                                echo "<td>" . $row['TYPE_USERS'] . "</td>";
+                                echo "<td>" . $row['username'] . "</td>";
+                                echo "<td>";
+                                echo "<form method='post' action='supprimerutilisateur.php' style='display:inline-block;'>";
+                                echo "<input type='hidden' name='id_users' value='" . $row['id_users'] . "'>";
+                                echo "<button type='submit' class='btn btn-danger'>Supprimer</button>";
+                                echo "</form>";
+                                echo "</td>";
+                                echo "</tr>";
+                            }
+                        } else {
+                            echo "<tr><td colspan='5'>Aucun utilisateur trouvé.</td></tr>";
+                        }
+                        ?>
+                    </table>
                 </div>
-                <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
-                    <label for="prenom_user" class="user">Prénom</label>
-                    <input type="text" class="form-control" id="prenom_user" name="prenom_user" aria-describedby="prenom_user" required>
-                </div>
-                <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
-                    <label for="username" class="user">Nom d'utilisateur</label>
-                    <input type="text" class="form-control" id="username" name="username" aria-describedby="username" required>
-                </div>
-                <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
-                    <label for="password" class="user">Mot de Passe</label>
-                    <input type="password" class="form-control" id="password" name="password" required>
-                </div>
-                <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
-                    <label for="type_users" class="user">Type d'utilisateur</label>
-                    <select class="form-control" id="type_users" name="type_users" required>
-                        <option value="A">Administrateur</option>
-                        <option value="T">Technicien</option>
-                    </select>
-                </div>
-                <button name="submit" type="submit" class="btn btn-danger">Créer le compte</button>
-            </form>
+            </div>
         </div>
     </div>
-  </div>
-  <div class="accordion-item">
-    <h2 class="accordion-header">
-      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
-        Supprimer un utilisateur
-      </button>
-    </h2>
-    <div id="flush-collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
-      <div class="accordion-body">      <div class="accordion-body"><h2>Supprimer un utilisateurs</h2>
-        <div class="d-flex justify-content-center align-items-center vh-40">
-        <form method="post">
-        <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
-        <label for="nom">Nom:</label>
-        <input type="text" id="nom" class="form-control" name="nom" required><br><br>
-    </div>
-    <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
-        <label for="prenom">Prénom:</label>
-        <input type="text" id="prenom" name="prenom" class="form-control" required><br><br>
-        </div>
-        <div class="shadow p-2 mb-4 bg-body-tertiary rounded">    
-        <label for="type">Type d'utilisateur:</label>
-        <select id="type" class="form-control"  name="type" required>
-            <option value="A">Administrateur</option>
-            <option value="T">Technicien</option>
-        </select><br><br>
-        </div>
-        <div class="shadow p-2 mb-4 bg-body-tertiary rounded">  
-        <label for="username">Nom d'utilisateur:</label>
-        <input type="text" id="username" class="form-control" name="username" required><br><br>
-        </div>
-        
-        <button type="submit" name="submit" class="btn btn-danger" >Supprimer l'utilisateur</button>
-    </form>
-</div>
-    </div>
-  </div>
-  </div>
-  <div class="accordion-item">
-    <h2 class="accordion-header">
-      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseThree" aria-expanded="false" aria-controls="flush-collapseThree">
-      Liste des utilisateurs
-      </button>
-    </h2>
-    <div id="flush-collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
-      <div class="accordion-body">  <table>
-        <tr>
-            <th>Nom</th>
-            <th>Prénom</th>
-            <th>Type d'utilisateur</th>
-            <th>Nom d'utilisateur</th>
-        </tr>
-        <?php
-        // Vérifier s'il y a des utilisateurs
-        if ($result->num_rows > 0) {
-            // Parcourir les résultats de la requête
-            while ($row = $result->fetch_assoc()) {
-                echo "<tr>";
-                echo "<td>" . $row['nom_users'] . "</td>";
-                echo "<td>" . $row['prenom_user'] . "</td>";
-                echo "<td>" . $row['TYPE_USERS'] . "</td>";
-                echo "<td>" . $row['username'] . "</td>";
-                echo "</tr>";
-            }
-        } else {
-            echo "<tr><td colspan='4'>Aucun utilisateur trouvé.</td></tr>";
-        }
-        ?>
-    </table>
-  </div>
-</div>
     </main>
     <footer>
         <p>Projet Supervision Inter-Ville réalisé par Nicolas LEGAL et Cyril RESCUER |2022-2024|</p>

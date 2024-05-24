@@ -10,7 +10,7 @@ body {
     color: black;
 }
 
-header, main, form, footer {
+header, main, footer {
     background-color: #e7f3ff;
     padding: 10px 20px;
     font-family: "Poetsen One", sans-serif;
