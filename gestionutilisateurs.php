@@ -62,22 +62,25 @@ $conn->close();
                     <div class="collapse navbar-collapse" id="navbarNav">
                         <span class="badge text-bg-danger">ADMIN</span>
                         <ul class="navbar-nav">
-                            <li class="nav-item">
-                                <a class="nav-link" aria-current="page" href="dashboard.php">DashBoard</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="listedesequipement.php">Listes des équipements</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="latence.php">Latence</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="logs.php">Logs</a>
-                            </li>
-                            <li class="nav-item">
+                      <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="dashboard.php">DashBoard</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="latence.php">Latence</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="logs.php">Logs</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="listedesequipement.php">Listes des équipements</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="gestionmairies.php">Gestion des Mairies</a>
+                      </li>
+                      <li class="nav-item">
                         <a class="nav-link" href="gestionutilisateurs.php">Gestion Utilisateurs</a>
                       </li>
-                        </ul>
+                       </ul>
                     </div>
                 </div>
             </nav>
