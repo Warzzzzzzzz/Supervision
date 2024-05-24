@@ -1,5 +1,5 @@
 <?php
-include("login.php"); // Assurez-vous que ce fichier contient la connexion à la base de données
+include("login.php"); 
 
 $message = '';
 
@@ -15,7 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $password = $_POST['password'];
         $type_users = $_POST['type_users'];
 
-        // Préparation et exécution de la requête d'insertion
+        
         $sql = "INSERT INTO users (nom_users, prenom_user, username, password, TYPE_USERS) VALUES (?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
         if ($stmt) {
@@ -40,7 +40,7 @@ $conn->close();
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -153,9 +153,9 @@ $conn->close();
                             <th>Suppression d'utilisateurs</th>
                         </tr>
                         <?php
-                        // Vérifier s'il y a des utilisateurs
+                       
                         if ($result->num_rows > 0) {
-                            // Parcourir les résultats de la requête
+                            
                             while ($row = $result->fetch_assoc()) {
                                 echo "<tr>";
                                 echo "<td>" . $row['nom_users'] . "</td>";

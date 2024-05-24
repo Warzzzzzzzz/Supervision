@@ -1,11 +1,11 @@
 <?php
-include("login.php"); // Assurez-vous que ce fichier contient la connexion à la base de données
+include("login.php"); 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['id_users'])) {
         $id_users = $_POST['id_users'];
 
-        // Préparation et exécution de la requête de suppression
+      
         $sql = "DELETE FROM users WHERE id_users = ?";
         $stmt = $conn->prepare($sql);
         if ($stmt) {

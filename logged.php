@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// Vérifier si l'utilisateur est connecté
+
 if (!isset($_SESSION['username'])) {
     header('Location: connexion.php');
     exit();
@@ -9,7 +9,7 @@ if (!isset($_SESSION['username'])) {
 
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -53,36 +53,6 @@ if (!isset($_SESSION['username'])) {
         </div>
     </header>
     <main>
-    <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="logged.php">Accueil Connexion</a></li>
-        </ol>
-      </nav>
-      <div class="d-inline-block">
-    <form class="form-dashboard" method="post" action="dashboard.php">
-        <button type="submit" class="btn btn-primary">Dashboard</button>
-    </form>
-</div>
-<div class="d-inline-block">
-    <form class="form-listedesequipements" method="post" action="listedesequipement.php">
-        <button type="submit" class="btn btn-primary">Liste des équipements</button>
-    </form>
-</div>
-<div class="d-inline-block">
-    <form class="form-latence" method="post" action="latence.php">
-        <button type="submit" class="btn btn-primary">Latence</button>
-    </form>
-</div>
-<div class="d-inline-block">
-    <form class="form-logs" method="post" action="logs.php">
-        <button type="submit" class="btn btn-primary">Logs</button>
-    </form>
-</div>
-<div class="d-inline-block">
-    <form class="form-gestionutilisateurs" method="post" action="gestionutilisateurs.php">
-        <button type="submit" class="btn btn-primary">Gestion utilisateurs</button>
-    </form>
-</div>
     </main>
     <footer>
         <p>Projet Supervision Inter-Ville réaliser par Nicolas LEGAL et Cyril RESCUER |2022-2024|</p>

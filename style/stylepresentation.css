@@ -37,7 +37,7 @@ footer {
     width: 100%;
 }
 
-/* Media queries pour rendre le design responsive */
+
 @media screen and (max-width: 768px) {
     body {
         margin: 20px;
