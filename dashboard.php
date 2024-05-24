@@ -1,3 +1,16 @@
+<?php
+$message = '';
+
+if (isset($_GET['message'])) {
+    $message = $_GET['message'];
+}
+
+
+include("login.php"); 
+
+$sql = "SELECT LIBELLE_EQUIPEMENTS, NAME_EQUIPEMENT, STATUS_EQUIPEMENTS, taux_de_charge, temps_uptime, latence, debit_rx, debit_tx, adresse_ip, temp_cpu, created_at FROM equipements";
+$result = $conn->query($sql);
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -5,12 +18,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Supervision Inter-ville</title>
     <link rel="icon" href="logo.png">
-    <link rel="stylesheet" href="./style/styledashboard.css">
+    <link rel="stylesheet" href="./style/stylegestionutilisateurs.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </head>
-<body>
+    <body>
     <header>
         <div>
           <H1>Supervision Inter-Ville</H1> 
@@ -22,17 +34,8 @@
         <div class="collapse navbar-collapse" id="navbarNav">
                   <span class="badge text-bg-danger">ADMIN</span>
                   <ul class="navbar-nav">
-                      <li class="nav-item">
+                  <li class="nav-item">
                         <a class="nav-link" aria-current="page" href="dashboard.php">DashBoard</a>
-                      </li>
-                      <li class="nav-item">
-                        <a class="nav-link" href="latence.php">Latence</a>
-                      </li>
-                      <li class="nav-item">
-                        <a class="nav-link" href="logs.php">Logs</a>
-                      </li>
-                      <li class="nav-item">
-                        <a class="nav-link" href="listedesequipement.php">Listes des équipements</a>
                       </li>
                       <li class="nav-item">
                         <a class="nav-link" href="gestionmairies.php">Gestion des Mairies</a>
@@ -45,7 +48,6 @@
                 </div>
               </nav>
               <?php
-session_start();
 
 if (!isset($_SESSION['username'])) {
     header('Location: index.html');
@@ -61,67 +63,45 @@ if (!isset($_SESSION['username'])) {
           <li class="breadcrumb-item active" aria-current="page">DashBoard</li>
         </ol>
       </nav>
-      <div style="width: 75%; margin: auto;">
-        <canvas id="chargeChart"></canvas>
-    </div>
-    <script>
-        // Fonction pour récupérer les données depuis data.php
-        async function fetchData() {
-            const response = await fetch('data.php');
-            const data = await response.json();
-            return data;
-        }
-
-        // Fonction pour créer le graphique
-        async function createChart() {
-            const data = await fetchData();
-            
-            const labels = data.map(row => row.NAME_EQUIPEMENT);
-            const tauxDeCharge = data.map(row => row.taux_de_charge);
-
-            const chartData = {
-                labels: labels,
-                datasets: [{
-                    label: 'Taux de Charge',
-                    backgroundColor: 'rgba(75, 192, 192, 0.8)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    data: tauxDeCharge,
-                }]
-            };
-
-            const config = {
-                type: 'bar',
-                data: chartData,
-                options: {
-                    responsive: true,
-                    scales: {
-                        x: {
-                            display: true,
-                            title: {
-                                display: true,
-                                text: 'Équipement'
-                            }
-                        },
-                        y: {
-                            display: true,
-                            title: {
-                                display: true,
-                                text: 'Taux de Charge'
-                            }
-                        }
-                    }
-                }
-            };
-
-            const chargeChart = new Chart(
-                document.getElementById('chargeChart'),
-                config
-            );
-        }
-
-        // Créer le graphique lors du chargement de la page
-        window.onload = createChart;
-    </script>
+      <table class="table table-dark table-hover">
+                        <thead>
+                            <tr>
+                                <th>Type d'équipements</th>
+                                <th>Nom d'équipements</th>
+                                <th>Status d'équipements</th>
+                                <th>Taux de Charge</th>
+                                <th>Temps Uptime</th>
+                                <th>Latence</th>
+                                <th>Débit RX</th>
+                                <th>Débit TX</th>
+                                <th>Addresses IP</th>
+                                <th>Températures CPU</th>
+                                <th>Dates et Heures</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php                           
+                            if ($result->num_rows > 0) {                       
+                                while ($row = $result->fetch_assoc()) {
+                                    echo "<tr>";
+                                    echo "<td>" . $row['LIBELLE_EQUIPEMENTS'] . "</td>";
+                                    echo "<td>" . $row['NAME_EQUIPEMENT'] . "</td>";
+                                    echo "<td>" . $row['STATUS_EQUIPEMENTS'] . "</td>";
+                                    echo "<td>" . $row['taux_de_charge'] . "</td>";
+                                    echo "<td>" . $row['temps_uptime'] . "</td>";
+                                    echo "<td>" . $row['latence'] . "</td>";
+                                    echo "<td>" . $row['debit_rx'] . "</td>";
+                                    echo "<td>" . $row['debit_tx'] . "</td>";
+                                    echo "<td>" . $row['adresse_ip'] . "</td>";
+                                    echo "<td>" . $row['temp_cpu'] . "</td>";
+                                    echo "<td>" . $row['created_at'] . "</td>";
+                                    echo "</tr>";
+                                }
+                            } 
+                            $conn->close();
+                            ?>
+                        </tbody>
+                    </table>
     </main>
     <footer>
         <p>Projet Supervision Inter-Ville réaliser par Nicolas LEGAL et Cyril RESCUER |2022-2024|</p>

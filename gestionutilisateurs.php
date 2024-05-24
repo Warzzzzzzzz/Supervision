@@ -66,15 +66,6 @@ $conn->close();
                         <a class="nav-link" aria-current="page" href="dashboard.php">DashBoard</a>
                       </li>
                       <li class="nav-item">
-                        <a class="nav-link" href="latence.php">Latence</a>
-                      </li>
-                      <li class="nav-item">
-                        <a class="nav-link" href="logs.php">Logs</a>
-                      </li>
-                      <li class="nav-item">
-                        <a class="nav-link" href="listedesequipement.php">Listes des équipements</a>
-                      </li>
-                      <li class="nav-item">
                         <a class="nav-link" href="gestionmairies.php">Gestion des Mairies</a>
                       </li>
                       <li class="nav-item">
@@ -147,7 +138,7 @@ $conn->close();
             </h2>
             <div id="flush-collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                 <div class="accordion-body">
-                    <table>
+                <table class="table table-dark table-hover">
                         <tr>
                             <th>Nom</th>
                             <th>Prénom</th>
