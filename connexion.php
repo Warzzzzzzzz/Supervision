@@ -86,9 +86,6 @@ if (isset($_POST['submit']) && isset($_POST['username']) && isset($_POST['passwo
     }
 }
 ?>
-
-
-
     </div>
     </main>
     <footer>

@@ -15,10 +15,13 @@ if (isset($_GET['submit'])) {
 
 if (isset($_POST['nom_equipement'])) {
     $nom_equipement = $_POST['nom_equipement'];
-    $sql = "SELECT LIBELLE_EQUIPEMENTS, NAME_EQUIPEMENT, STATUS_EQUIPEMENTS, taux_de_charge, temps_uptime, latence, debit_rx, debit_tx, adresse_ip, temp_cpu, created_at 
-            FROM equipements 
-            WHERE NAME_EQUIPEMENT = '$nom_equipement' 
-            ORDER BY created_at DESC";
+    $sql = "SELECT M.nom_mairie, SA.libelle_salle, S.libelle_services, E.NAME_EQUIPEMENT 
+        FROM equipements E 
+        INNER JOIN services S ON E.ID_EQUIPEMENTS = S.ID_SERVICES 
+        INNER JOIN mairie M ON M.ID_MAIRIE = S.ID_MAIRIE 
+        INNER JOIN salles SA ON SA.ID_SALLES = S.ID_SALLES 
+        WHERE E.LIBELLE_EQUIPEMENTS = 'Routeur'";
+
     $result = $conn->query($sql);
 ?>
 <!DOCTYPE html>
@@ -33,25 +36,25 @@ if (isset($_POST['nom_equipement'])) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </head>
 <body>
-<h1>Supervision Inter-Ville</h1> 
-            <form class="form-deconnexion" method="post" action="dashboard.php">
-                <button type="submit" class="btn btn-light">Retour</button>
+<header>
+        <div>
+            <h1>Supervision Inter-Ville</h1>
+            <form class="form-deconnexion" method="post" action="logout.php">
+                <button type="submit" class="btn btn-danger">Se Déconnecter</button>
             </form>
+            <p></p>
+            <form class="form-deconnexion" method="post" action="dashboard.php">
+                <button type="submit" class="btn btn-secondary">Retour</button>
+            </form>
+</div>
+    </header>
     <main>
         <table class="table table-dark table-hover">
             <thead>
                 <tr>
-                    <th>Type d'équipements</th>
-                    <th>Nom d'équipements</th>
-                    <th>Status d'équipements</th>
-                    <th>Taux de Charge</th>
-                    <th>Temps Uptime</th>
-                    <th>Latence</th>
-                    <th>Débit RX</th>
-                    <th>Débit TX</th>
-                    <th>Addresses IP</th>
-                    <th>Températures CPU</th>
-                    <th>Dates et Heures</th>
+                    <th>Mairie</th>
+                    <th>Salle</th>
+                    <th>Service</th>
                 </tr>
             </thead>
             <tbody>
@@ -59,27 +62,13 @@ if (isset($_POST['nom_equipement'])) {
                 if ($result->num_rows > 0) {                       
                     while ($row = $result->fetch_assoc()) {
                         echo "<tr>";
-                        echo "<td>" . $row['LIBELLE_EQUIPEMENTS'] . "</td>";
-                        echo "<td>" . $row['NAME_EQUIPEMENT'] . "</td>";
-                        echo "<td>";
-                        if ($row['STATUS_EQUIPEMENTS'] == 'ON') {
-                            echo "<img src='image/valide.png' alt='On' style='width:20px;height:20px;'>";
-                        } else {
-                            echo "<img src='image/refuse.png' alt='Off' style='width:20px;height:20px;'>";
-                        }
-                        echo "</td>";
-                        echo "<td>" . $row['taux_de_charge'] . "</td>";
-                        echo "<td>" . $row['temps_uptime'] . "</td>";
-                        echo "<td>" . $row['latence'] . "</td>";
-                        echo "<td>" . $row['debit_rx'] . "</td>";
-                        echo "<td>" . $row['debit_tx'] . "</td>";
-                        echo "<td>" . $row['adresse_ip'] . "</td>";
-                        echo "<td>" . $row['temp_cpu'] . "</td>";
-                        echo "<td>" . $row['created_at'] . "</td>";
+                        echo "<td>" . $row['nom_mairie'] . "</td>";
+                        echo "<td>" . $row['libelle_salle'] . "</td>";
+                        echo "<td>" . $row['libelle_services'] . "</td>";
                         echo "</tr>";
                     }
                 } else {
-                    echo "<tr><td colspan='11'>Aucun résultat trouvé.</td></tr>";
+                    echo "<tr><td colspan='4'>Aucun résultat trouvé.</td></tr>";
                 }
                 $conn->close();
                 ?>

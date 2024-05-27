@@ -13,8 +13,8 @@ if (isset($_GET['submit'])) {
     $search_query = $_GET['search'];
 }
 
-// Requête SQL pour obtenir les enregistrements les plus récents pour chaque NAME_EQUIPEMENT
-$sql = "SELECT e.LIBELLE_EQUIPEMENTS, e.NAME_EQUIPEMENT, e.STATUS_EQUIPEMENTS, e.taux_de_charge, e.temps_uptime, e.latence, e.debit_rx, e.debit_tx, e.adresse_ip, e.temp_cpu, e.created_at
+
+$sql = "SELECT e.LIBELLE_EQUIPEMENTS, e.NAME_EQUIPEMENT, e.created_at
         FROM equipements e
         INNER JOIN (
             SELECT NAME_EQUIPEMENT, MAX(created_at) as MaxDate
@@ -91,7 +91,6 @@ $result = $conn->query($sql);
                 <tr>
                     <th>Type d'équipements</th>
                     <th>Nom d'équipements</th>
-                    <th>Status d'équipements</th>
                     <th>Détails</th>
                 </tr>
             </thead>
@@ -105,13 +104,6 @@ $result = $conn->query($sql);
                         echo "<tr class='$highlight'>";
                         echo "<td>" . $row['LIBELLE_EQUIPEMENTS'] . "</td>";
                         echo "<td>" . $row['NAME_EQUIPEMENT'] . "</td>";
-                        echo "<td>";
-                        if ($row['STATUS_EQUIPEMENTS'] == 'ON') {
-                            echo "<img src='image/valide.png' alt='On' style='width:20px;height:20px;'>";
-                        } else {
-                            echo "<img src='image/refuse.png' alt='Off' style='width:20px;height:20px;'>";
-                        }
-                        echo "</td>";
                         echo "<td>";
                         echo "<form method='post' action='details.php' style='display:inline-block;'>";
                         echo "<input type='hidden' name='nom_equipement' value='" . $row['NAME_EQUIPEMENT'] . "'>";
