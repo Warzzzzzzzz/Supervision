@@ -34,7 +34,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-$sql = "SELECT id_users, nom_users, prenom_user, TYPE_USERS, username FROM users";
+$sql = "SELECT u.id_users, u.nom_users, u.prenom_user, u.TYPE_USERS, u.username, t.LIBELLE_TYPE_USERS 
+        FROM users u 
+        INNER JOIN type_users t ON u.TYPE_USERS = t.type_users";
 $result = $conn->query($sql);
 $conn->close();
 ?>
@@ -78,17 +80,18 @@ $conn->close();
         </div>
     </header>
     <main>
-    <?php if ($message): ?>
-        <div class="alert alert-info" role="alert">
-            <?php echo $message; ?>
-        </div>
-    <?php endif; ?>
+    
     <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="logged.php">Accueil Connexion</a></li>
             <li class="breadcrumb-item active" aria-current="page">Gestion utilisateurs</li>
         </ol>
     </nav>
+    <?php if ($message): ?>
+        <div class="alert alert-info" role="alert">
+            <?php echo $message; ?>
+        </div>
+    <?php endif; ?>
     <div class="accordion accordion-flush" id="accordionFlushExample">
         <div class="accordion-item">
             <h2 class="accordion-header">
@@ -124,20 +127,13 @@ $conn->close();
                                     <option value="T">Technicien</option>
                                 </select>
                             </div>
-                            <button name="submit" type="submit" class="btn btn-danger">Créer le compte</button>
+                            <button name="submit" type="submit" class="btn btn-success">Créer le compte</button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="accordion-item">
-            <h2 class="accordion-header">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseThree" aria-expanded="false" aria-controls="flush-collapseThree">
-                    Liste des utilisateurs
-                </button>
-            </h2>
-            <div id="flush-collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
-                <div class="accordion-body">
+        <p></p>
                 <table class="table table-dark table-hover">
                         <tr>
                             <th>Nom</th>
@@ -154,7 +150,13 @@ $conn->close();
                                 echo "<tr>";
                                 echo "<td>" . $row['nom_users'] . "</td>";
                                 echo "<td>" . $row['prenom_user'] . "</td>";
-                                echo "<td>" . $row['TYPE_USERS'] . "</td>";
+                                echo "<td>";
+                                    if ($row['TYPE_USERS'] == 'A') {
+                                     echo "Administrateur";
+                                    } elseif ($row['TYPE_USERS'] == 'T') {
+                                        echo "Technicien";
+                                    }
+                                echo "</td>";
                                 echo "<td>" . $row['username'] . "</td>";
                                 echo "<td>";
                                 echo "<form method='post' action='supprimerutilisateur.php' style='display:inline-block;'>";
@@ -170,9 +172,6 @@ $conn->close();
                         ?>
                     </table>
                 </div>
-            </div>
-        </div>
-    </div>
     </main>
     <footer>
         <p>Projet Supervision Inter-Ville réalisé par Nicolas LEGAL et Cyril RESCUER |2022-2024|</p>
