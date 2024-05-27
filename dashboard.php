@@ -5,27 +5,28 @@ if (isset($_GET['message'])) {
     $message = $_GET['message'];
 }
 
-include("login.php"); 
-
-
+include("login.php");
 
 $search_query = "";
 
-if(isset($_GET['submit'])) {
-  
+if (isset($_GET['submit'])) {
     $search_query = $_GET['search'];
 }
-$sql = "SELECT LIBELLE_EQUIPEMENTS, NAME_EQUIPEMENT, STATUS_EQUIPEMENTS, taux_de_charge, temps_uptime, latence, debit_rx, debit_tx, adresse_ip, temp_cpu, created_at FROM equipements";
 
-if(!empty($search_query)) {
-    $sql .= " WHERE LIBELLE_EQUIPEMENTS LIKE '%$search_query%' OR NAME_EQUIPEMENT LIKE '%$search_query%'";
+// Requête SQL pour obtenir les enregistrements les plus récents pour chaque NAME_EQUIPEMENT
+$sql = "SELECT e.LIBELLE_EQUIPEMENTS, e.NAME_EQUIPEMENT, e.STATUS_EQUIPEMENTS, e.taux_de_charge, e.temps_uptime, e.latence, e.debit_rx, e.debit_tx, e.adresse_ip, e.temp_cpu, e.created_at
+        FROM equipements e
+        INNER JOIN (
+            SELECT NAME_EQUIPEMENT, MAX(created_at) as MaxDate
+            FROM equipements
+            GROUP BY NAME_EQUIPEMENT
+        ) as latest
+        ON e.NAME_EQUIPEMENT = latest.NAME_EQUIPEMENT AND e.created_at = latest.MaxDate";
+
+if (!empty($search_query)) {
+    $sql .= " WHERE e.NAME_EQUIPEMENT LIKE '%$search_query%'";
 }
 
-$result = $conn->query($sql);
-
-
-
-$sql = "SELECT LIBELLE_EQUIPEMENTS, NAME_EQUIPEMENT, STATUS_EQUIPEMENTS, taux_de_charge, temps_uptime, latence, debit_rx, debit_tx, adresse_ip, temp_cpu, created_at FROM equipements";
 $result = $conn->query($sql);
 ?>
 <!DOCTYPE html>
@@ -46,7 +47,7 @@ $result = $conn->query($sql);
             <form class="form-deconnexion" method="post" action="logout.php">
                 <button type="submit" class="btn btn-danger">Se Déconnecter</button>
             </form>
-            <nav class="navbar navbar-expand-lg  bg-body-tertiary" data-bs-theme="dark">
+            <nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
                 <div class="container-fluid">
                     <div class="collapse navbar-collapse" id="navbarNav">
                         <span class="badge text-bg-danger">ADMIN</span>
@@ -81,51 +82,50 @@ $result = $conn->query($sql);
         </nav>
         <form method="GET" action="">
             <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="Rechercher par type ou nom d'équipement" name="search">
+                <input type="text" class="form-control" placeholder="Rechercher par nom d'équipement" name="search" value="<?php echo htmlspecialchars($search_query); ?>">
                 <button class="btn btn-secondary" type="submit" name="submit">Rechercher</button>
             </div>
         </form>
-         <table class="table table-dark table-hover">
+        <table class="table table-dark table-hover">
             <thead>
                 <tr>
                     <th>Type d'équipements</th>
                     <th>Nom d'équipements</th>
                     <th>Status d'équipements</th>
-                    <th>Taux de Charge</th>
-                    <th>Temps Uptime</th>
-                    <th>Latence</th>
-                    <th>Débit RX</th>
-                    <th>Débit TX</th>
-                    <th>Addresses IP</th>
-                    <th>Températures CPU</th>
-                    <th>Dates et Heures</th>
+                    <th>Détails</th>
                 </tr>
             </thead>
             <tbody>
-                <?php                           
-                if ($result->num_rows > 0) {                       
+                <?php
+                if ($result->num_rows > 0) {
                     while ($row = $result->fetch_assoc()) {
-                        echo "<tr>";
+                        // Vérifier si le NAME_EQUIPEMENT contient la chaîne de recherche pour ajouter la classe de surlignage
+                        $highlight = (!empty($search_query) && stripos($row['NAME_EQUIPEMENT'], $search_query) !== false) ? 'table-warning' : '';
+
+                        echo "<tr class='$highlight'>";
                         echo "<td>" . $row['LIBELLE_EQUIPEMENTS'] . "</td>";
                         echo "<td>" . $row['NAME_EQUIPEMENT'] . "</td>";
-                        echo "<td>" . $row['STATUS_EQUIPEMENTS'] . "</td>";
-                        echo "<td>" . $row['taux_de_charge'] . "</td>";
-                        echo "<td>" . $row['temps_uptime'] . "</td>";
-                        echo "<td>" . $row['latence'] . "</td>";
-                        echo "<td>" . $row['debit_rx'] . "</td>";
-                        echo "<td>" . $row['debit_tx'] . "</td>";
-                        echo "<td>" . $row['adresse_ip'] . "</td>";
-                        echo "<td>" . $row['temp_cpu'] . "</td>";
-                        echo "<td>" . $row['created_at'] . "</td>";
+                        echo "<td>";
+                        if ($row['STATUS_EQUIPEMENTS'] == 'ON') {
+                            echo "<img src='image/valide.png' alt='On' style='width:20px;height:20px;'>";
+                        } else {
+                            echo "<img src='image/refuse.png' alt='Off' style='width:20px;height:20px;'>";
+                        }
+                        echo "</td>";
+                        echo "<td>";
+                        echo "<form method='post' action='details.php' style='display:inline-block;'>";
+                        echo "<input type='hidden' name='nom_equipement' value='" . $row['NAME_EQUIPEMENT'] . "'>";
+                        echo "<button type='submit' class='btn btn-light'>Détails</button>";
+                        echo "</form>";
+                        echo "</td>";
                         echo "</tr>";
                     }
                 } else {
-                    echo "<tr><td colspan='11'>Aucun résultat trouvé.</td></tr>";
+                    echo "<tr><td colspan='4'>Aucun résultat trouvé.</td></tr>";
                 }
                 $conn->close();
                 ?>
             </tbody>
-            
         </table>
     </main>
     <footer>
