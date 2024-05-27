@@ -59,7 +59,6 @@
 </div>
       </form>
       <?php
-
 include("login.php");
 
 $message = '';
@@ -68,11 +67,13 @@ if (isset($_POST['submit']) && isset($_POST['username']) && isset($_POST['passwo
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    $sql = "SELECT * FROM users WHERE username = :username";
+    $sql = "SELECT * FROM users WHERE username = ?";
 
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute(['username' => $username]);
-    $user = $stmt->fetch();
+    $stmt = $conn->prepare($sql); // Utilisation de $conn au lieu de $pdo
+    $stmt->bind_param('s', $username); // Liaison du paramètre avec la valeur
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
 
     if ($user && password_verify($password, $user['password'])) {
         session_start();
@@ -85,6 +86,8 @@ if (isset($_POST['submit']) && isset($_POST['username']) && isset($_POST['passwo
     }
 }
 ?>
+
+
 
     </div>
     </main>
