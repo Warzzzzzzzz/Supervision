@@ -1,4 +1,5 @@
 <?php
+session_start();
 
 $servername = "localhost";
 $dbname = "supervision-inter-ville";

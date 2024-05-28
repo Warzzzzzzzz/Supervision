@@ -78,7 +78,7 @@ $conn->close();
                         <a class="nav-link" aria-current="page" href="connexion.php">Accueil</a>
                       </li>
                       <li class="nav-item">
-                        <a class="nav-link" href="presentation.html">Présentation</a>
+                        <a class="nav-link" href="presentation.php">Présentation</a>
                       </li>
                       <li class="nav-item">
                         <a class="nav-link" href="dashboard.php">DashBoard</a>
@@ -90,6 +90,15 @@ $conn->close();
                         <a class="nav-link" href="gestionutilisateurs.php">Gestion utilisateurs</a>
                       </li>
                     </ul>
+                    <form class="form-account" method="post" action="account.php">
+                            <button type="submit" class="btn btn-light">
+                                <?php
+                                if (isset($_SESSION['nom_users']) && isset($_SESSION['prenom_user'])) {
+                                    echo "" . htmlspecialchars($_SESSION['prenom_user']) . " " . htmlspecialchars($_SESSION['nom_users']);
+                                }
+                                ?>
+                            </button>
+                        </form>
                     <form class="form-deconnexion" method="post" action="logout.php">
                         <button type="submit" class="btn btn-danger">Se Déconnecter</button>
                     </form>

@@ -9,9 +9,30 @@ if (isset($_GET['message'])) {
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['submit'])) {
-        // Votre code actuel pour créer un utilisateur
+        // Récupérer les données du formulaire
+        $nom_users = $_POST['nom_users'];
+        $prenom_user = $_POST['prenom_user'];
+        $username = $_POST['username'];
+        $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+        $type_users = $_POST['type_users'];
+
+        // Préparer la requête d'insertion
+        $sql = "INSERT INTO users (nom_users, prenom_user, username, password, TYPE_USERS) VALUES (?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        if ($stmt) {
+            $stmt->bind_param("sssss", $nom_users, $prenom_user, $username, $password, $type_users);
+
+            if ($stmt->execute()) {
+                $message = 'Utilisateur créé avec succès';
+            } else {
+                $message = 'Erreur lors de la création de l\'utilisateur: ' . $stmt->error;
+            }
+
+            $stmt->close();
+        } else {
+            $message = 'Erreur de préparation de la requête: ' . $conn->error;
+        }
     } elseif (isset($_POST['update'])) {
-        // Code pour mettre à jour un utilisateur
         $id_users = $_POST['id_users'];
         $new_username = $_POST['new_username'];
         $new_type_users = $_POST['new_type_users'];
@@ -67,86 +88,94 @@ $conn->close();
         .table th, .table td {
             text-align: center;
         }
-        
     </style>
 </head>
 <body>
     <header>
-    <nav class="navbar navbar-expand-lg  bg-body-tertiary"data-bs-theme="dark">
-                <div class="container-fluid">
-                    <a class="navbar-brand" href="#"></a>
-                  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#"></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
-                  </button>
-                  <div class="collapse navbar-collapse" id="navbarNav">
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav">
-                      <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="connexion.php">Accueil</a>
-                      </li>
-                      <li class="nav-item">
-                        <a class="nav-link" href="presentation.html">Présentation</a>
-                      </li>
-                      <li class="nav-item">
-                        <a class="nav-link" href="dashboard.php">DashBoard</a>
-                      </li>
-                      <li class="nav-item">
-                        <a class="nav-link" href="gestionmairies.php">Gestion Mairies</a>
-                      </li>
-                      <li class="nav-item">
-                        <a class="nav-link" href="gestionutilisateurs.php">Gestion utilisateurs</a>
-                      </li>
+                        <li class="nav-item">
+                            <a class="nav-link" aria-current="page" href="connexion.php">Accueil</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="presentation.php">Présentation</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="dashboard.php">DashBoard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="gestionmairies.php">Gestion Mairies</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="gestionutilisateurs.php">Gestion utilisateurs</a>
+                        </li>
                     </ul>
+                    <form class="form-account" method="post" action="account.php">
+                            <button type="submit" class="btn btn-light">
+                                <?php
+                                if (isset($_SESSION['nom_users']) && isset($_SESSION['prenom_user'])) {
+                                    echo "" . htmlspecialchars($_SESSION['prenom_user']) . " " . htmlspecialchars($_SESSION['nom_users']);
+                                }
+                                ?>
+                            </button>
+                        </form>
                     <form class="form-deconnexion" method="post" action="logout.php">
                         <button type="submit" class="btn btn-danger">Se Déconnecter</button>
                     </form>
-                  </div>
                 </div>
-              </nav>
-        </div>
+            </div>
+        </nav>
     </header>
     <main> 
-    <?php if ($message): ?>
-        <div class="alert alert-info" role="alert">
-            <?php echo $message; ?>
-        </div>
-    <?php endif; ?>
-    <div class="accordion accordion-flush" id="accordionFlushExample">
-        <div class="accordion-item">
-            <h2 class="accordion-header">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
-                    Créer un utilisateur
-                </button>
-            </h2>
-            <div id="flush-collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
-                <div class="accordion-body">
-                    <h2>Créer un compte</h2>
-                    <div class="d-flex justify-content-center align-items-center vh-40">
-                        <form method="post">
-                            <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
-                                <label for="nom_users" class="user">Nom</label>
-                                <input type="text" class="form-control" id="nom_users" name="nom_users" aria-describedby="nom_users" required>
-                            </div>
-                            <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
-                                <label for="prenom_user" class="user">Prénom</label>
-                                <input type="text" class="form-control" id="prenom_user" name="prenom_user" aria-describedby="prenom_user" required>
-                            </div>
-                            <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
-                                <label for="username" class="user">Nom d'utilisateur</label>
-                                <input type="text" class="form-control" id="username" name="username" aria-describedby="username" required>
-                            </div>
-                            <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
-                                <label for="password" class="user">Mot de Passe</label>
-                                <input type="password" class="form-control" id="password" name="password" required>
-                            </div>
-                            <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
-                                <label for="type_users" class="user">Type d'utilisateur</label>
-                                <select class="form-control" id="type_users" name="type_users" required>
-                                    <option value="A">Administrateur</option>
-                                    <option value="T">Technicien</option>
-                                </select>
-                            </div>
-                            <button name="submit" type="submit" class="btn btn-success">Créer le compte</button>
-                        </form>
+        <?php if ($message): ?>
+            <div class="alert alert-info" role="alert">
+                <?php echo $message; ?>
+            </div>
+        <?php endif; ?>
+        <div class="accordion accordion-flush" id="accordionFlushExample">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                        Créer un utilisateur
+                    </button>
+                </h2>
+                <div id="flush-collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                    <div class="accordion-body">
+                        <h2>Créer un compte</h2>
+                        <div class="d-flex justify-content-center align-items-center vh-40">
+                            <form method="post">
+                                <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
+                                    <label for="nom_users" class="user">Nom</label>
+                                    <input type="text" class="form-control" id="nom_users" name="nom_users" aria-describedby="nom_users" required>
+                                </div>
+                                <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
+                                    <label for="prenom_user" class="user">Prénom</label>
+                                    <input type="text" class="form-control" id="prenom_user" name="prenom_user" aria-describedby="prenom_user" required>
+                                </div>
+                                <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
+                                    <label for="username" class="user">Nom d'utilisateur</label>
+                                    <input type="text" class="form-control" id="username" name="username" aria-describedby="username" required>
+                                </div>
+                                <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
+                                    <label for="password" class="user">Mot de Passe</label>
+                                    <input type="password" class="form-control" id="password" name="password" required>
+                                </div>
+                                <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
+                                    <label for="type_users" class="user">Type d'utilisateur</label>
+                                    <select class="form-control" id="type_users" name="type_users" required>
+                                        <option value="A">Administrateur</option>
+                                        <option value="T">Technicien</option>
+                                    </select>
+                                </div>
+                                <button name="submit" type="submit" class="btn btn-success">Créer le compte</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>

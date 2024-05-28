@@ -1,27 +1,9 @@
 <?php
-session_start();
-$message = '';
-
-if (isset($_GET['message'])) {
-    $message = $_GET['message'];
-}
-
 include("login.php");
 
-// Établir la connexion à la base de données
-$servername = "localhost";
-$dbname = "supervision-inter-ville";
-$username = "root"; 
-$password = ""; 
+$message = '';
 
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-if ($conn->connect_error) {
-    die("La connexion a échoué: " . $conn->connect_error);
-}
-
-$search_query = "";
-
+$search_query = '';
 if (isset($_GET['submit'])) {
     $search_query = $_GET['search'];
 }
@@ -85,7 +67,7 @@ $result = $conn->query($sql);
                                 <a class="nav-link" aria-current="page" href="connexion.php">Accueil</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="presentation.html">Présentation</a>
+                                <a class="nav-link" href="presentation.php">Présentation</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="dashboard.php">DashBoard</a>
@@ -119,7 +101,7 @@ $result = $conn->query($sql);
        <div>
             <form method="GET" action="">
                 <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Rechercher par nom d'équipement" name="search" value="<?php echo htmlspecialchars($search_query); ?>">
+                    <input type="text" class="form-control" placeholder="Rechercher par nom d'équipement" name="search" value="<?php echo htmlspecialchars($search_query ?? ''); ?>">
                     <button class="btn btn-secondary" type="submit" name="submit">Rechercher</button>
                 </div>
             </form>
