@@ -1,4 +1,5 @@
 <?php
+session_start();
 $message = '';
 
 if (isset($_GET['message'])) {
@@ -13,8 +14,7 @@ if (isset($_GET['submit'])) {
     $search_query = $_GET['search'];
 }
 
-
-$sql = "SELECT e.LIBELLE_EQUIPEMENTS, e.NAME_EQUIPEMENT, e.created_at
+$sql = "SELECT e.ID_EQUIPEMENTS, e.LIBELLE_EQUIPEMENTS, e.NAME_EQUIPEMENT, e.created_at
         FROM equipements e
         INNER JOIN (
             SELECT NAME_EQUIPEMENT, MAX(created_at) as MaxDate
@@ -29,6 +29,7 @@ if (!empty($search_query)) {
 
 $result = $conn->query($sql);
 ?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -52,47 +53,58 @@ $result = $conn->query($sql);
         .form-deconnexion {
             margin-left: auto;
         }
+        .table th, .table td {
+            text-align: center;
+        }
+
     </style>
 </head>
 <body>
     <header>
-    <header>
         <div>
-            <nav class="navbar navbar-expand-lg  bg-body-tertiary"data-bs-theme="dark">
+            <nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
                 <div class="container-fluid">
                     <a class="navbar-brand" href="#"></a>
-                  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                  </button>
-                  <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav">
-                      <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="index.html">Accueil</a>
-                      </li>
-                      <li class="nav-item">
-                        <a class="nav-link" href="presentation.html">Présentation</a>
-                      </li>
-                      <li class="nav-item">
-                        <a class="nav-link" href="dashboard.php">DashBoard</a>
-                      </li>
-                      <li class="nav-item">
-                        <a class="nav-link" href="gestionmairies.php">Gestion Mairies</a>
-                      </li>
-                      <li class="nav-item">
-                        <a class="nav-link" href="gestionutilisateurs.php">Gestion utilisateurs</a>
-                      </li>
-                    </ul>
-                    <form class="form-deconnexion" method="post" action="logout.php">
-                        <button type="submit" class="btn btn-danger">Se Déconnecter</button>
-                    </form>
-                  </div>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a class="nav-link" aria-current="page" href="connexion.php">Accueil</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="presentation.html">Présentation</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="dashboard.php">DashBoard</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="gestionmairies.php">Gestion Mairies</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="gestionutilisateurs.php">Gestion utilisateurs</a>
+                            </li>
+                        </ul>
+                        <form class="form-deconnexion" method="post" action="logout.php">
+                            <button type="submit" class="btn btn-danger">Se Déconnecter</button>
+                        </form>
+                        <form class="form-account" method="post" action="account.php">
+                            
+                            <button type="submit" class="btn btn-light"><?php
+                            if (isset($_SESSION['nom_users']) && isset($_SESSION['prenom_user'])) {
+                                echo "" . htmlspecialchars($_SESSION['prenom_user']) . " " . htmlspecialchars($_SESSION['nom_users']);
+                            }
+                            ?></button>
+                            </form>
+                    </div>
                 </div>
-              </nav>
-        </div>
+            </nav>
         </div>
     </header>
+    
     <main class="table-container">
-        <div>
+       <div>
             <form method="GET" action="">
                 <div class="input-group mb-3">
                     <input type="text" class="form-control" placeholder="Rechercher par nom d'équipement" name="search" value="<?php echo htmlspecialchars($search_query); ?>">
@@ -104,6 +116,7 @@ $result = $conn->query($sql);
                     <tr>
                         <th>Type d'équipements</th>
                         <th>Nom d'équipements</th>
+                        <th>ID équipements</th>
                         <th>Détails</th>
                     </tr>
                 </thead>
@@ -114,18 +127,19 @@ $result = $conn->query($sql);
                             $highlight = (!empty($search_query) && stripos($row['NAME_EQUIPEMENT'], $search_query) !== false) ? 'table-warning' : '';
 
                             echo "<tr class='$highlight'>";
-                            echo "<td>" . $row['LIBELLE_EQUIPEMENTS'] . "</td>";
-                            echo "<td>" . $row['NAME_EQUIPEMENT'] . "</td>";
+                            echo "<td>" . htmlspecialchars($row['LIBELLE_EQUIPEMENTS']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['NAME_EQUIPEMENT']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['ID_EQUIPEMENTS']) . "</td>";
                             echo "<td>";
                             echo "<form method='post' action='details.php' style='display:inline-block;'>";
-                            echo "<input type='hidden' name='nom_equipement' value='" . $row['NAME_EQUIPEMENT'] . "'>";
+                            echo "<input type='hidden' name='ID_EQUIPEMENTS' value='" . htmlspecialchars($row['ID_EQUIPEMENTS']) . "'>";
                             echo "<button type='submit' class='btn btn-light'>Détails</button>";
                             echo "</form>";
                             echo "</td>";
                             echo "</tr>";
                         }
                     } else {
-                        echo "<tr><td colspan='3'>Aucun résultat trouvé.</td></tr>";
+                        echo "<tr><td colspan='4'>Aucun résultat trouvé.</td></tr>";
                     }
                     $conn->close();
                     ?>

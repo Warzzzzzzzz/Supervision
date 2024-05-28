@@ -58,6 +58,9 @@ $conn->close();
         .form-deconnexion {
             margin-left: auto;
         }
+        .table th, .table td {
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -72,7 +75,7 @@ $conn->close();
                   <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav">
                       <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="index.html">Accueil</a>
+                        <a class="nav-link" aria-current="page" href="connexion.php">Accueil</a>
                       </li>
                       <li class="nav-item">
                         <a class="nav-link" href="presentation.html">Présentation</a>

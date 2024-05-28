@@ -1,5 +1,5 @@
 <?php
-include("login.php"); 
+include("login.php");
 
 $message = '';
 
@@ -9,22 +9,22 @@ if (isset($_GET['message'])) {
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['submit'])) {
-        $nom_users = $_POST['nom_users'];
-        $prenom_user = $_POST['prenom_user'];
-        $username = $_POST['username'];
-        $password = $_POST['password'];
-        $type_users = $_POST['type_users'];
+        // Votre code actuel pour créer un utilisateur
+    } elseif (isset($_POST['update'])) {
+        // Code pour mettre à jour un utilisateur
+        $id_users = $_POST['id_users'];
+        $new_username = $_POST['new_username'];
+        $new_type_users = $_POST['new_type_users'];
 
-        
-        $sql = "INSERT INTO users (nom_users, prenom_user, username, password, TYPE_USERS) VALUES (?, ?, ?, ?, ?)";
+        $sql = "UPDATE users SET username = ?, TYPE_USERS = ? WHERE id_users = ?";
         $stmt = $conn->prepare($sql);
         if ($stmt) {
-            $stmt->bind_param("sssss", $nom_users, $prenom_user, $username, $password, $type_users);
+            $stmt->bind_param("ssi", $new_username, $new_type_users, $id_users);
 
             if ($stmt->execute()) {
-                $message = 'Compte créé avec succès';
+                $message = 'Utilisateur mis à jour avec succès';
             } else {
-                $message = 'Erreur lors de la création du compte: ' . $stmt->error;
+                $message = 'Erreur lors de la mise à jour de l\'utilisateur: ' . $stmt->error;
             }
 
             $stmt->close();
@@ -64,6 +64,10 @@ $conn->close();
         .form-deconnexion {
             margin-left: auto;
         }
+        .table th, .table td {
+            text-align: center;
+        }
+        
     </style>
 </head>
 <body>
@@ -77,7 +81,7 @@ $conn->close();
                   <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav">
                       <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="index.html">Accueil</a>
+                        <a class="nav-link" aria-current="page" href="connexion.php">Accueil</a>
                       </li>
                       <li class="nav-item">
                         <a class="nav-link" href="presentation.html">Présentation</a>
@@ -155,6 +159,9 @@ $conn->close();
                             <th>Type d'utilisateurs</th>
                             <th>Nom d'utilisateurs</th>
                             <th>Suppression d'utilisateurs</th>
+                            <th>Modification login</th>
+                            <th>Modification Role</th>
+                            <th>Modification</th>
                         </tr>
                         <?php
                        
@@ -177,6 +184,24 @@ $conn->close();
                                 echo "<input type='hidden' name='id_users' value='" . $row['id_users'] . "'>";
                                 echo "<button type='submit' class='btn btn-danger'>Supprimer</button>";
                                 echo "</form>";
+                                echo "</td>";
+                                echo "<td>";
+                                echo "<form method='post'>";
+                                echo "<input type='hidden' name='id_users' value='" . $row['id_users'] . "'>";
+                                echo "<input type='text' name='new_username' value='" . $row['username'] . "'>";
+                                echo "</td>";
+                                echo "<td>";
+                                echo "<select name='new_type_users'>";
+                                echo "<option value='A'" . ($row['TYPE_USERS'] == 'A' ? ' selected' : '') . ">Administrateur</option>";
+                                echo "<option value='T'" . ($row['TYPE_USERS'] == 'T' ? ' selected' : '') . ">Technicien</option>";
+                                echo "</select>";
+                                echo "</td>";
+                                echo "<td>";
+                                echo "<button type='submit' name='update' class='btn btn-success'>Modifier</button>";
+                                echo "</form>";
+                                echo "</td>";
+                                echo "</td>";
+                                echo "</td>";
                                 echo "</td>";
                                 echo "</tr>";
                             }
