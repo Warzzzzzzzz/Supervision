@@ -8,6 +8,18 @@ if (isset($_GET['message'])) {
 
 include("login.php");
 
+// Établir la connexion à la base de données
+$servername = "localhost";
+$dbname = "supervision-inter-ville";
+$username = "root"; 
+$password = ""; 
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+    die("La connexion a échoué: " . $conn->connect_error);
+}
+
 $search_query = "";
 
 if (isset($_GET['submit'])) {
@@ -51,12 +63,11 @@ $result = $conn->query($sql);
             flex-grow: 1;
         }
         .form-deconnexion {
-            margin-left: auto;
+            margin-left: 20px; /* Espace à gauche du bouton de déconnexion */
         }
         .table th, .table td {
             text-align: center;
         }
-
     </style>
 </head>
 <body>
@@ -86,17 +97,18 @@ $result = $conn->query($sql);
                                 <a class="nav-link" href="gestionutilisateurs.php">Gestion utilisateurs</a>
                             </li>
                         </ul>
+                        <form class="form-account" method="post" action="account.php">
+                            <button type="submit" class="btn btn-light">
+                                <?php
+                                if (isset($_SESSION['nom_users']) && isset($_SESSION['prenom_user'])) {
+                                    echo "" . htmlspecialchars($_SESSION['prenom_user']) . " " . htmlspecialchars($_SESSION['nom_users']);
+                                }
+                                ?>
+                            </button>
+                        </form>
                         <form class="form-deconnexion" method="post" action="logout.php">
                             <button type="submit" class="btn btn-danger">Se Déconnecter</button>
                         </form>
-                        <form class="form-account" method="post" action="account.php">
-                            
-                            <button type="submit" class="btn btn-light"><?php
-                            if (isset($_SESSION['nom_users']) && isset($_SESSION['prenom_user'])) {
-                                echo "" . htmlspecialchars($_SESSION['prenom_user']) . " " . htmlspecialchars($_SESSION['nom_users']);
-                            }
-                            ?></button>
-                            </form>
                     </div>
                 </div>
             </nav>
