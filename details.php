@@ -1,6 +1,8 @@
 <?php
 include("login.php");
 
+include("session_check.php");
+
 $message = '';
 
 if (isset($_GET['message'])) {
@@ -47,7 +49,7 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
                 }
                 
                 .form-deconnexion {
-                    margin-left: auto;
+                    margin-left: auto; 
                 }
                 .form-retour {
                     margin-left: left;
@@ -135,8 +137,8 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
             </div>
         </main>
         <footer>
-            <p>Projet Supervision Inter-Ville réalisé par Nicolas LEGAL et Cyril RESCUER |2022-2024|</p>
-        </footer>
+        <p>Projet Supervision Inter-Ville réalisé par Nicolas LEGAL et Cyril MAGUIRE |2022-2024|</p>
+    </footer>
         </body>
         </html>
         <?php

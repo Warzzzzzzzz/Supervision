@@ -1,3 +1,45 @@
+<?php
+
+include("login.php");
+
+$message = '';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (isset($_POST['username']) && isset($_POST['password'])) {
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+  
+        $sql = "SELECT ID_USERS, type_users, username, password, nom_users, prenom_user FROM users WHERE username = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows > 0) {
+            $user = $result->fetch_assoc();
+            
+            if (password_verify($password, $user['password'])) {
+                $_SESSION['id_user'] = $user['ID_USERS']; 
+                $_SESSION['username'] = $user['username'];
+                $_SESSION['nom_users'] = $user['nom_users'];
+                $_SESSION['prenom_user'] = $user['prenom_user'];
+                echo "Connexion réussie !";
+                header("Location: connexion.php");
+                exit();
+            } else {
+                $message = 'Mot de passe incorrecte';
+            }
+        } else {
+            $message = 'Mauvais identifiants';
+        }
+
+        $stmt->close();
+    }
+}
+        
+
+?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -22,7 +64,7 @@
             </div>
             <div class="mb-3">
                 <label for="password" class="form-label">Mot de Passe</label>
-                <input type="password" class="form-control" id="password" name="password">
+                <input type="password" class="form-control" id="password" name="password" required>
             </div>
             <?php if (!empty($message)): ?>
                 <div class="mb-3 alert alert-danger">
@@ -33,37 +75,9 @@
                 <button name="submit" type="submit" class="btn btn-success">Se connecter</button>
             </div>
         </form>
-        <?php
-        include("login.php");
-
-        $message = '';
-
-        if (isset($_POST['submit']) && isset($_POST['username']) && isset($_POST['password'])) {
-            $username = $_POST['username'];
-            $password = $_POST['password'];
-
-            $sql = "SELECT * FROM users WHERE username = ?";
-
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param('s', $username);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $user = $result->fetch_assoc();
-
-            if ($user && password_verify($password, $user['password'])) {
-                session_start();
-                $_SESSION['username'] = $user['username'];
-                $_SESSION['type_users'] = $user['type_users'];
-                header('Location: connexion.php');
-                exit();
-            } else {
-                $message = 'Mauvais identifiants';
-            }
-        }
-        ?>
     </main>
     <footer>
-        <p>Projet Supervision Inter-Ville réalisé par Nicolas LEGAL et Cyril RESCUER |2022-2024|</p>
+        <p>Projet Supervision Inter-Ville réalisé par Nicolas LEGAL et Cyril MAGUIRE |2022-2024|</p>
     </footer>
 </body>
 </html>

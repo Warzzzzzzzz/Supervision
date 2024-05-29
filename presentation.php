@@ -1,3 +1,6 @@
+<?php
+include("session_check.php");
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -25,8 +28,9 @@
             flex-grow: 1;
         }
         .form-deconnexion {
-            margin-left: auto;
-        }    </style>
+          margin-left: 20px; 
+        }    
+        </style>
 </head>
 <body>
     <header>
@@ -77,7 +81,7 @@
       <img src="./img/presentation.png" class="presentation">
     </main>
     <footer>
-      <p>Projet Supervision Inter-Ville réaliser par Nicolas LEGAL et Cyril RESCUER |2022-2024|</p>
-  </footer>
+        <p>Projet Supervision Inter-Ville réalisé par Nicolas LEGAL et Cyril MAGUIRE |2022-2024|</p>
+    </footer>
 </body>
 </html>

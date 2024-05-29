@@ -1,4 +1,6 @@
 <?php
+
+include("session_check.php");
 include("login.php");
 
 $message = '';
@@ -45,7 +47,7 @@ $result = $conn->query($sql);
             flex-grow: 1;
         }
         .form-deconnexion {
-            margin-left: 20px; /* Espace à gauche du bouton de déconnexion */
+            margin-left: 20px; 
         }
         .table th, .table td {
             text-align: center;
@@ -142,7 +144,7 @@ $result = $conn->query($sql);
         </div>
     </main>
     <footer>
-        <p>Projet Supervision Inter-Ville réalisé par Nicolas LEGAL et Cyril RESCUER |2022-2024|</p>
+        <p>Projet Supervision Inter-Ville réalisé par Nicolas LEGAL et Cyril MAGUIRE |2022-2024|</p>
     </footer>
 </body>
 </html>
