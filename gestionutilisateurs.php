@@ -11,14 +11,14 @@ if (isset($_GET['message'])) {
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['submit'])) {
-        // Récupérer les données du formulaire
+
         $nom_users = $_POST['nom_users'];
         $prenom_user = $_POST['prenom_user'];
         $username = $_POST['username'];
         $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
         $type_users = $_POST['type_users'];
 
-        // Préparer la requête d'insertion
+
         $sql = "INSERT INTO users (nom_users, prenom_user, username, password, TYPE_USERS) VALUES (?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
         if ($stmt) {
@@ -90,6 +90,9 @@ $conn->close();
         .table th, .table td {
             text-align: center;
         }
+        main {
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -149,7 +152,9 @@ $conn->close();
                 </h2>
                 <div id="flush-collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                     <div class="accordion-body">
+                    <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
                         <h2>Créer un compte</h2>
+                    </div>
                         <div class="d-flex justify-content-center align-items-center vh-40">
                             <form method="post">
                                 <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
@@ -230,9 +235,6 @@ $conn->close();
                                 echo "<td>";
                                 echo "<button type='submit' name='update' class='btn btn-success'>Modifier</button>";
                                 echo "</form>";
-                                echo "</td>";
-                                echo "</td>";
-                                echo "</td>";
                                 echo "</td>";
                                 echo "</tr>";
                             }

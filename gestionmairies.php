@@ -63,6 +63,9 @@ $conn->close();
         .table th, .table td {
             text-align: center;
         }
+        main {
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -125,7 +128,9 @@ $conn->close();
                 </h2>
                 <div id="flush-collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                     <div class="accordion-body">
+                    <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
                         <h2>Créer une mairie</h2>
+                    </div>
                         <div class="d-flex justify-content-center align-items-center vh-40">
                             <form method="POST">
                                 <div class="shadow p-2 mb-4 bg-body-tertiary rounded">

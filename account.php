@@ -7,7 +7,7 @@ if (!isset($_SESSION['id_user'])) {
     exit();
 }
 
-$id_user = $_SESSION['id_user']; // Assurez-vous que id_user est défini dans la session
+$id_user = $_SESSION['id_user']; 
 
 $sql = "SELECT * FROM users WHERE id_users = ?";
 $stmt = $conn->prepare($sql);
@@ -119,7 +119,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
                     <?php echo htmlspecialchars($message); ?>
                 </div>
             <?php endif; ?>
-        <div class="text-center">
+            <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
             <h2>Modifier mon compte</h2>
         </div>
         <div class="d-flex justify-content-center align-items-center vh-40">

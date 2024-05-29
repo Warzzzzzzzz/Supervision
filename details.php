@@ -12,7 +12,6 @@ if (isset($_GET['message'])) {
 if (isset($_POST['ID_EQUIPEMENTS'])) {
     $id_equipement = $_POST['ID_EQUIPEMENTS'];
 
-    // Requête pour obtenir les détails de l'équipement
     $sql = $conn->prepare("SELECT M.nom_mairie, SA.libelle_salle, S.libelle_services, E.NAME_EQUIPEMENT,
                                   E.temps_uptime, E.latence, E.debit_rx, E.debit_tx, E.temp_cpu, E.utilisation_cpu, E.address_ip
                            FROM equipements E 
