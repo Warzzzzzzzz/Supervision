@@ -26,6 +26,7 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
         $nom_equipement = $row['NAME_EQUIPEMENT'];
+    
         ?>
         <!DOCTYPE html>
         <html lang="fr">
@@ -127,8 +128,8 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
                             echo "<td>" . htmlspecialchars($row['debit_rx']) . "</td>";
                             echo "<td>" . htmlspecialchars($row['debit_tx']) . "</td>";
                             echo "<td>" . htmlspecialchars($row['temp_cpu']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['utilisation_cpu']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['address_ip']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['utilisation_cpu']) .  "</td>";
+                            echo "<td>" . ht;mlspecialchars($row['address_ip']) . "</td>";
                             echo "</tr>";
                         }
                         ?>
