@@ -62,7 +62,43 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
             $filteredItemsTX[] = $item;
         }
     }
+    $filteredItemsTempCPU = [];
+    $keywordsTempCPU = "CPU temperature";
+    
+    foreach ($items as $item) {
+        if (strpos($item['name'], $keywordsRX) !== false) {
+            $filteredItemsRX[] = $item;
+        } elseif (strpos($item['name'], $keywordsTX) !== false) {
+            $filteredItemsTX[] = $item;
+        } elseif (strpos($item['name'], $keywordsTempCPU) !== false) {
+            $filteredItemsTempCPU[] = $item;
+        }
+    }
 
+    $filteredItemsUptime = [];
+$filteredItemsLatency = [];
+$filteredItemsCpuUsage = [];
+$keywordsUptime = "Uptime";
+$keywordsLatency = "Latency";
+$keywordsCpuUsage = "CPU utilization";
+
+foreach ($items as $item) {
+    if (strpos($item['name'], $keywordsRX) !== false) {
+        $filteredItemsRX[] = $item;
+    } elseif (strpos($item['name'], $keywordsTX) !== false) {
+        $filteredItemsTX[] = $item;
+    } elseif (strpos($item['name'], $keywordsTempCPU) !== false) {
+        $filteredItemsTempCPU[] = $item;
+    } elseif (strpos($item['name'], $keywordsUptime) !== false) {
+        $filteredItemsUptime[] = $item;
+    } elseif (strpos($item['name'], $keywordsLatency) !== false) {
+        $filteredItemsLatency[] = $item;
+    } elseif (strpos($item['name'], $keywordsCpuUsage) !== false) {
+        $filteredItemsCpuUsage[] = $item;
+    }
+}
+
+    
     // Étape 3 : Récupérer les interfaces des hôtes pour obtenir les adresses IP
     $hostIds = array_unique(array_column($items, 'hostid'));
     $interfaceParams = [
@@ -87,53 +123,102 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
         $hostIdIpMapping[$interface['hostid']] = $interface['ip'];
     }
 
-    // Boucle pour insérer les données dans la base de données
-    foreach ($filteredItemsRX as $itemRX) {
-        $hostId = $itemRX['hostid'] ?? '';
-        $hostName = $itemRX['hosts'][0]['host'] ?? 'Unknown Host'; // Utilisez '??' pour fournir une valeur par défaut
-        $bitsRX = $itemRX['lastvalue'] ?? 0;
-        $timeRX = (time() - ($itemRX['lastclock'] ?? time()));
-    
-        $kilobitsRX = $bitsRX / 1000;
-        $kbpsRX = ($timeRX > 0) ? $kilobitsRX / $timeRX : 0; // Éviter la division par zéro
-    
-        // Trouver l'élément correspondant pour le débit TX
-        $matchingItemTX = null;
-        foreach ($filteredItemsTX as $itemTX) {
-            if ($itemTX['hostid'] === $hostId) {
-                $matchingItemTX = $itemTX;
-                break;
-            }
-        }
-    
-        $bitsTX = $matchingItemTX['lastvalue'] ?? 0;
-        $timeTX = (time() - ($matchingItemTX['lastclock'] ?? time()));
-        $kilobitsTX = $bitsTX / 1000;
-        $kbpsTX = ($timeTX > 0) ? $kilobitsTX / $timeTX : 0; // Éviter la division par zéro
-    
-        // Supposons que $conn est déjà connecté à la base de données
-        $ipAddress = $hostIdIpMapping[$hostId] ?? '0.0.0.0'; // Fournir une adresse IP par défaut si non trouvée
-    
-        // Requête d'insertion SQL
-        $sql = "SELECT * FROM equipements WHERE ID_EQUIPEMENTS = '$hostId'";
-        $result = mysqli_query($conn, $sql);
-    
-        if (mysqli_num_rows($result) > 0) {
-            $sql = "UPDATE equipements SET NAME_EQUIPEMENT = '$hostName', debit_rx = '$kbpsRX', debit_tx = '$kbpsTX', address_ip = '$ipAddress' WHERE ID_EQUIPEMENTS = '$hostId'";
-        } else {
-            $sql = "INSERT INTO equipements (ID_EQUIPEMENTS, NAME_EQUIPEMENT, debit_rx, debit_tx, address_ip)
-                    VALUES ('$hostId', '$hostName', '$kbpsRX', '$kbpsTX', '$ipAddress')";
-        }
-    
-        if ($conn->query($sql) === TRUE) {
-            echo "";
-        } else {
-            echo "Erreur lors de l'insertion des données : " . $conn->error;
+foreach ($filteredItemsRX as $itemRX) {
+    $hostId = $itemRX['hostid'] ?? '';
+    $hostName = $itemRX['hosts'][0]['host'] ?? 'Unknown Host'; // Utilisez '??' pour fournir une valeur par défaut
+    $bitsRX = $itemRX['lastvalue'] ?? 0;
+    $timeRX = (time() - ($itemRX['lastclock'] ?? time()));
+
+    $kilobitsRX = $bitsRX / 1000;
+    $kbpsRX = ($timeRX > 0) ? $kilobitsRX / $timeRX : 0; // Éviter la division par zéro
+
+    // Trouver l'élément correspondant pour le débit TX
+    $matchingItemTX = null;
+    foreach ($filteredItemsTX as $itemTX) {
+        if ($itemTX['hostid'] === $hostId) {
+            $matchingItemTX = $itemTX;
+            break;
         }
     }
+
+    $bitsTX = $matchingItemTX['lastvalue'] ?? 0;
+    $timeTX = (time() - ($matchingItemTX['lastclock'] ?? time()));
+    $kilobitsTX = $bitsTX / 1000;
+    $kbpsTX = ($timeTX > 0) ? $kilobitsTX / $timeTX : 0; // Éviter la division par zéro
+
+    // Trouver l'élément correspondant pour la température CPU
+    $matchingItemTempCPU = null;
+    foreach ($filteredItemsTempCPU as $itemTempCPU) {
+        if ($itemTempCPU['hostid'] === $hostId) {
+            $matchingItemTempCPU = $itemTempCPU;
+            break;
+        }
+    }
+    $tempCPU = $matchingItemTempCPU['lastvalue'] ?? 0;
+
+    // Trouver l'élément correspondant pour le temps d'uptime
+    $matchingItemUptime = null;
+    foreach ($filteredItemsUptime as $itemUptime) {
+        if ($itemUptime['hostid'] === $hostId) {
+            $matchingItemUptime = $itemUptime;
+            break;
+        }
+    }
+    $uptime = $matchingItemUptime['lastvalue'] ?? 0;
+
+    // Trouver l'élément correspondant pour la latence
+    $matchingItemLatency = null;
+    foreach ($filteredItemsLatency as $itemLatency) {
+        if ($itemLatency['hostid'] === $hostId) {
+            $matchingItemLatency = $itemLatency;
+            break;
+        }
+    }
+    $latency = $matchingItemLatency['lastvalue'] ?? 0;
+
+    // Trouver l'élément correspondant pour l'utilisation CPU
+    $matchingItemCpuUsage = null;
+    foreach ($filteredItemsCpuUsage as $itemCpuUsage) {
+        if ($itemCpuUsage['hostid'] === $hostId) {
+            $matchingItemCpuUsage = $itemCpuUsage;
+            break;
+        }
+    }
+    $cpuUsage = $matchingItemCpuUsage['lastvalue'] ?? 0;
+
+    // Supposons que $conn est déjà connecté à la base de données
+    $ipAddress = $hostIdIpMapping[$hostId] ?? '0.0.0.0'; // Fournir une adresse IP par défaut si non trouvée
+
+    // Requête d'insertion SQL
+    $sql = "SELECT * FROM equipements WHERE ID_EQUIPEMENTS = '$hostId'";
+    $result = mysqli_query($conn, $sql);
+
+    if (mysqli_num_rows($result) > 0) {
+        $sql = "UPDATE equipements SET 
+                NAME_EQUIPEMENT = '$hostName', 
+                debit_rx = '$kbpsRX', 
+                debit_tx = '$kbpsTX', 
+                address_ip = '$ipAddress', 
+                temp_cpu = '$tempCPU', 
+                temps_uptime = '$uptime', 
+                latence = '$latency', 
+                utilisation_cpu = '$cpuUsage' 
+                WHERE ID_EQUIPEMENTS = '$hostId'";
+    } else {
+        $sql = "INSERT INTO equipements 
+                (ID_EQUIPEMENTS, NAME_EQUIPEMENT, debit_rx, debit_tx, address_ip, temp_cpu, temps_uptime, latence, utilisation_cpu)
+                VALUES ('$hostId', '$hostName', '$kbpsRX', '$kbpsTX', '$ipAddress', '$tempCPU', '$uptime', '$latency', '$cpuUsage')";
+    }
+
+    if ($conn->query($sql) === TRUE) {
+        echo "";
+    } else {
+        echo "Erreur lors de l'insertion des données : " . $conn->error;
+    }
+}
     
 // Récupération des détails de l'équipement
-$sql = $conn->prepare("SELECT NAME_EQUIPEMENT, debit_rx, debit_tx, address_ip
+$sql = $conn->prepare("SELECT NAME_EQUIPEMENT, debit_rx, debit_tx, address_ip, temp_cpu, temps_uptime, latence, utilisation_cpu
                        FROM equipements 
                        WHERE ID_EQUIPEMENTS = ?");
 $sql->bind_param("i", $id_equipement);
@@ -142,102 +227,112 @@ $result = $sql->get_result();
 if ($result->num_rows > 0) {
     $row = $result->fetch_assoc();
     $nom_equipement = $row['NAME_EQUIPEMENT'];
-    $debit_rx = $row['debit_rx']; // Définir la variable $debit_rx
-    $debit_tx = $row['debit_tx']; // Définir la variable $debit_tx
+    $debit_rx = $row['debit_rx'];
+    $debit_tx = $row['debit_tx'];
     $ipAddress = $row['address_ip'];
-      }
-        ?>
-
-        <!DOCTYPE html>
-        <html lang="fr">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Supervision Inter-ville</title>
-            <link rel="icon" href="./img/logo.png">
-            <link rel="stylesheet" href="./style/style.css">
-            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-            <style>
-                body {
-                    background-image: url('./img/backg.jpg');
-                    background-size: cover;
-                    background-repeat: no-repeat;
-                }
-                .container {
-                    margin-top: 50px;
-                }
+    $temp_cpu = $row['temp_cpu'];
+    $uptime = $row['temps_uptime'];
+    $latency = $row['latence'];
+    $cpuUsage = $row['utilisation_cpu'];
+}
+?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supervision Inter-ville</title>
+    <link rel="icon" href="./img/logo.png">
+    <link rel="stylesheet" href="./style/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .container {
+            margin-top: 50px;
+        }
         .navbar-nav {
             flex-grow: 1;
         }
         .form-deconnexion {
-                    margin-left: auto; 
-                }
+            margin-left: auto; 
+        }
         .form-retour {
-                    margin-left: left;
-                }
-                .table th, .table td {
+            margin-left: left;
+        }
+        .table th, .table td {
             text-align: center;
         }
         .navbar-brand {
-                    position: absolute;
-                    left: 50%;
-                    transform: translateX(-50%);
-                }
-            </style>
-        </head>
-        <body>
-        <header>
-        <div>
-        <div>
-            <nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
-                <div class="container-fluid">
-                    <a class="navbar-brand" href="#"><?php echo htmlspecialchars($nom_equipement); ?></a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse" id="navbarNav">
-                        <form class="form-retour" method="post" action="dashboard.php">
-                            <button type="submit" class="btn btn-secondary">Retour</button>
-                        </form>
-                        <form class="form-deconnexion" method="post" action="logout.php">
-                            <button type="submit" class="btn btn-danger">Se Déconnecter</button>
-                        </form>
-                    </div>
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+    </style>
+</head>
+<body>
+<header>
+    <div>
+        <nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#"><?php echo htmlspecialchars($nom_equipement); ?></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <form class="form-retour" method="post" action="dashboard.php">
+                        <button type="submit" class="btn btn-secondary">Retour</button>
+                    </form>
+                    <form class="form-deconnexion" method="post" action="logout.php">
+                        <button type="submit" class="btn btn-danger">Se Déconnecter</button>
+                    </form>
                 </div>
-            </nav>
-        </div>
-    </header>
-    <main>
-            <div class="container">
-                <table class="table table-dark table-hover">
-                    <thead>
-                        <tr>
-                            <th>Nom de l'équipement</th>
-                            <th>Débit RX</th>
-                            <th>Débit TX</th>
-                            <th>Adresse IP</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                        <td><?php echo htmlspecialchars($nom_equipement); ?></td>
-                        <td><?php echo htmlspecialchars(number_format($debit_rx, 2, '.', '')); ?> ko/s</td>
-                        <td><?php echo htmlspecialchars(number_format($debit_tx, 2, '.', '')); ?> ko/s</td>
-                        <td><?php echo htmlspecialchars($ipAddress); ?></td>
-
-                        </tr>
-                    </tbody>
-                </table>
-                <canvas id="myChart" width="400" height="400"></canvas>
             </div>
-      </main>
-        </body>
-        </html>
-        <?php
-    } else {
-        echo "Aucun équipement trouvé pour l'ID spécifié.";
-    }
-
+        </nav>
+    </div>
+</header>
+<main>
+    <div class="container">
+        <table class="table table-dark table-hover">
+            <thead>
+                <tr>
+                    <th>Nom de l'équipement</th>
+                    <th>Adresse IP</th>
+                    <th>Débit RX</th>
+                    <th>Débit TX</th>
+                    <th>Température</th>
+                    <th>Uptime</th>
+                    <th>Latence</th>
+                    <th>Utilisation CPU</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><?php echo htmlspecialchars($nom_equipement); ?></td>
+                    <td><?php echo htmlspecialchars($ipAddress); ?></td>
+                    <td><?php echo htmlspecialchars(number_format($debit_rx, 2, '.', '')); ?> ko/s</td>
+                    <td><?php echo htmlspecialchars(number_format($debit_tx, 2, '.', '')); ?> ko/s</td>
+                    <td><?php echo htmlspecialchars(number_format($temp_cpu, 2, '.', '')); ?> °C</td>
+                    <td><?php echo htmlspecialchars(number_format($uptime, 2, '.', '')); ?> s</td>
+                    <td><?php echo htmlspecialchars(number_format($latency, 2, '.', '')); ?> ms</td>
+                    <td><?php echo htmlspecialchars(number_format($cpuUsage, 2, '.', '')); ?> %</td>
+                </tr>
+            </tbody>
+        </table>
+        <canvas id="myChart" width="400" height="400"></canvas>
+    </div>
+</main>
+<script>
+    // Recharger la page toutes les 5 secondes
+    setInterval(function(){
+        window.location.reload();
+    }, 5000);
+</script>
+</body>
+</html>
+<?php
+} else {
+    echo "Aucun équipement trouvé pour l'ID spécifié.";
+}
 ?>

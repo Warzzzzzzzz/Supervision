@@ -1,5 +1,9 @@
 <?php
+include("login.php");
 include("session_check.php");
+$alarm_query = "SELECT ID_EQUIPEMENTS, NAME_EQUIPEMENT, 'Température CPU > 20°C' as cause FROM equipements WHERE temp_cpu > 20";
+$alarm_result = $conn->query($alarm_query);
+$alarm_count = $alarm_result->num_rows;
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -30,6 +34,14 @@ include("session_check.php");
         .form-deconnexion {
           margin-left: 20px; 
         }    
+        .btn-alarm {
+            animation: blink 1s step-start infinite;
+        }
+        @keyframes blink {
+            50% {
+                background-color: #dc3545;
+            }
+        }
         </style>
 </head>
 <body>
@@ -58,6 +70,9 @@ include("session_check.php");
                       <li class="nav-item">
                         <a class="nav-link" href="gestionutilisateurs.php">Gestion utilisateurs</a>
                       </li>
+                      <form class="form-alarmes" method="post" action="alarm.php">
+                            <button type="submit" class="btn btn-light <?php echo $alarm_count > 0 ? 'btn-alarm' : ''; ?>">Alarmes</button>
+                        </form>
                     </ul>
                     <form class="form-account" method="post" action="account.php">
                             <button type="submit" class="btn btn-light">
@@ -80,6 +95,12 @@ include("session_check.php");
     <main>
       <img src="./img/presentation.png" class="presentation">
     </main>
+    <script>
+    // Recharger la page toutes les 5 secondes
+    setInterval(function(){
+        window.location.reload();
+    }, 5000);
+</script>
     <footer>
         <p>Projet Supervision Inter-Ville réalisé par Nicolas LEGAL et Cyril MAGUIRE |2022-2024|</p>
     </footer>
