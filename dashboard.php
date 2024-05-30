@@ -112,7 +112,6 @@ $result = $conn->query($sql);
                     <tr>
                         <th>Type d'équipements</th>
                         <th>Nom d'équipements</th>
-                        <th>ID équipements</th>
                         <th>Détails</th>
                     </tr>
                 </thead>
@@ -125,7 +124,6 @@ $result = $conn->query($sql);
                             echo "<tr class='$highlight'>";
                             echo "<td>" . htmlspecialchars($row['LIBELLE_EQUIPEMENTS']) . "</td>";
                             echo "<td>" . htmlspecialchars($row['NAME_EQUIPEMENT']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['ID_EQUIPEMENTS']) . "</td>";
                             echo "<td>";
                             echo "<form method='post' action='details.php' style='display:inline-block;'>";
                             echo "<input type='hidden' name='ID_EQUIPEMENTS' value='" . htmlspecialchars($row['ID_EQUIPEMENTS']) . "'>";
