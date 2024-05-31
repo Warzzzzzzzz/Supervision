@@ -34,7 +34,7 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
     }
 
     $url = 'http://192.168.112.153/api_jsonrpc.php'; // URL de l'API Zabbix
-    $authToken = 'b930180ba40730660536b3d3c0d07c47'; // Token d'authentification
+    $authToken = '8efbc7b02e8381f751273e8909d605a5e31d0032161d4b051f9aa17c8055a1ea'; // Token d'authentification
 
     // Étape 1 : Récupérer tous les éléments
     $itemParams = [
@@ -49,22 +49,39 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
     }
     $items = $itemResponse['result'];
 
-    // Étape 2 : Filtrer les éléments localement pour les débits reçus et envoyés
+    // Récupérer le statut des hôtes
+    $hostParams = [
+        'output' => ['hostid', 'name', 'status']
+    ];
+
+    $hostResponse = zabbixApiRequest($url, $authToken, 'host.get', $hostParams);
+    if (isset($hostResponse['error'])) {
+        echo 'Erreur dans la requête host.get : ' . htmlspecialchars(json_encode($hostResponse['error'])) . '<br>';
+        exit;
+    }
+    $hosts = $hostResponse['result'];
+
+    // Créer un dictionnaire pour mapper hostid à status
+    $hostStatusMapping = [];
+    foreach ($hosts as $host) {
+        $hostStatusMapping[$host['hostid']] = $host['status'] == 0 ? 'Online' : 'Offline';
+    }
+
+    // Filtrer les éléments pour les différents métriques
     $filteredItemsRX = [];
     $filteredItemsTX = [];
+    $filteredItemsTempCPU = [];
+    $filteredItemsUptime = [];
+    $filteredItemsLatency = [];
+    $filteredItemsCpuUsage = [];
+    
     $keywordsRX = "Bits received";
     $keywordsTX = "Bits sent";
-
-    foreach ($items as $item) {
-        if (strpos($item['name'], $keywordsRX) !== false) {
-            $filteredItemsRX[] = $item;
-        } elseif (strpos($item['name'], $keywordsTX) !== false) {
-            $filteredItemsTX[] = $item;
-        }
-    }
-    $filteredItemsTempCPU = [];
     $keywordsTempCPU = "CPU temperature";
-    
+    $keywordsUptime = "Uptime";
+    $keywordsLatency = "Latency";
+    $keywordsCpuUsage = "CPU utilization";
+
     foreach ($items as $item) {
         if (strpos($item['name'], $keywordsRX) !== false) {
             $filteredItemsRX[] = $item;
@@ -72,34 +89,16 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
             $filteredItemsTX[] = $item;
         } elseif (strpos($item['name'], $keywordsTempCPU) !== false) {
             $filteredItemsTempCPU[] = $item;
+        } elseif (strpos($item['name'], $keywordsUptime) !== false) {
+            $filteredItemsUptime[] = $item;
+        } elseif (strpos($item['name'], $keywordsLatency) !== false) {
+            $filteredItemsLatency[] = $item;
+        } elseif (strpos($item['name'], $keywordsCpuUsage) !== false) {
+            $filteredItemsCpuUsage[] = $item;
         }
     }
 
-    $filteredItemsUptime = [];
-$filteredItemsLatency = [];
-$filteredItemsCpuUsage = [];
-$keywordsUptime = "Uptime";
-$keywordsLatency = "Latency";
-$keywordsCpuUsage = "CPU utilization";
-
-foreach ($items as $item) {
-    if (strpos($item['name'], $keywordsRX) !== false) {
-        $filteredItemsRX[] = $item;
-    } elseif (strpos($item['name'], $keywordsTX) !== false) {
-        $filteredItemsTX[] = $item;
-    } elseif (strpos($item['name'], $keywordsTempCPU) !== false) {
-        $filteredItemsTempCPU[] = $item;
-    } elseif (strpos($item['name'], $keywordsUptime) !== false) {
-        $filteredItemsUptime[] = $item;
-    } elseif (strpos($item['name'], $keywordsLatency) !== false) {
-        $filteredItemsLatency[] = $item;
-    } elseif (strpos($item['name'], $keywordsCpuUsage) !== false) {
-        $filteredItemsCpuUsage[] = $item;
-    }
-}
-
-    
-    // Étape 3 : Récupérer les interfaces des hôtes pour obtenir les adresses IP
+    // Récupérer les interfaces des hôtes pour obtenir les adresses IP
     $hostIds = array_unique(array_column($items, 'hostid'));
     $interfaceParams = [
         'output' => ['hostid', 'ip'],
@@ -123,104 +122,116 @@ foreach ($items as $item) {
         $hostIdIpMapping[$interface['hostid']] = $interface['ip'];
     }
 
-foreach ($filteredItemsRX as $itemRX) {
-    $hostId = $itemRX['hostid'] ?? '';
-    $hostName = $itemRX['hosts'][0]['host'] ?? 'Unknown Host'; // Utilisez '??' pour fournir une valeur par défaut
-    $bitsRX = $itemRX['lastvalue'] ?? 0;
-    $timeRX = (time() - ($itemRX['lastclock'] ?? time()));
+    foreach ($filteredItemsRX as $itemRX) {
+        $hostId = $itemRX['hostid'] ?? '';
+        $hostName = $itemRX['hosts'][0]['host'] ?? 'Unknown Host'; // Utilisez '??' pour fournir une valeur par défaut
+        $bitsRX = $itemRX['lastvalue'] ?? 0;
+        $timeRX = (time() - ($itemRX['lastclock'] ?? time()));
 
-    $kilobitsRX = $bitsRX / 1000;
-    $kbpsRX = ($timeRX > 0) ? $kilobitsRX / $timeRX : 0; // Éviter la division par zéro
+        $kilobitsRX = $bitsRX / 1000;
+        $kbpsRX = ($timeRX > 0) ? $kilobitsRX / $timeRX : 0; // Éviter la division par zéro
 
-    // Trouver l'élément correspondant pour le débit TX
-    $matchingItemTX = null;
-    foreach ($filteredItemsTX as $itemTX) {
-        if ($itemTX['hostid'] === $hostId) {
-            $matchingItemTX = $itemTX;
-            break;
+        // Trouver l'élément correspondant pour le débit TX
+        $matchingItemTX = null;
+        foreach ($filteredItemsTX as $itemTX) {
+            if ($itemTX['hostid'] === $hostId) {
+                $matchingItemTX = $itemTX;
+                break;
+            }
+        }
+
+        $bitsTX = $matchingItemTX['lastvalue'] ?? 0;
+        $timeTX = (time() - ($matchingItemTX['lastclock'] ?? time()));
+        $kilobitsTX = $bitsTX / 1000;
+        $kbpsTX = ($timeTX > 0) ? $kilobitsTX / $timeTX : 0; // Éviter la division par zéro
+
+        // Trouver l'élément correspondant pour la température CPU
+        $matchingItemTempCPU = null;
+        foreach ($filteredItemsTempCPU as $itemTempCPU) {
+            if ($itemTempCPU['hostid'] === $hostId) {
+                $matchingItemTempCPU = $itemTempCPU;
+                break;
+            }
+        }
+        $tempCPU = $matchingItemTempCPU['lastvalue'] ?? 0;
+
+        // Trouver l'élément correspondant pour le temps d'uptime
+        $matchingItemUptime = null;
+        foreach ($filteredItemsUptime as $itemUptime) {
+            if ($itemUptime['hostid'] === $hostId) {
+                $matchingItemUptime = $itemUptime;
+                break;
+            }
+        }
+        $uptime = $matchingItemUptime['lastvalue'] ?? 0;
+
+        // Trouver l'élément correspondant pour la latence
+        $matchingItemLatency = null;
+        foreach ($filteredItemsLatency as $itemLatency) {
+            if ($itemLatency['hostid'] === $hostId) {
+                $matchingItemLatency = $itemLatency;
+                break;
+            }
+        }
+        $latency = $matchingItemLatency['lastvalue'] ?? 0;
+
+        // Trouver l'élément correspondant pour l'utilisation CPU
+        $matchingItemCpuUsage = null;
+        foreach ($filteredItemsCpuUsage as $itemCpuUsage) {
+            if ($itemCpuUsage['hostid'] === $hostId) {
+                $matchingItemCpuUsage = $itemCpuUsage;
+                break;
+            }
+        }
+        $cpuUsage = $matchingItemCpuUsage['lastvalue'] ?? 0;
+
+        // Supposons que $conn est déjà connecté à la base de données
+        $ipAddress = $hostIdIpMapping[$hostId] ?? '0.0.0.0'; // Fournir une adresse IP par défaut si non trouvée
+
+        // Ajouter le statut
+        $status = $hostStatusMapping[$hostId] ?? 'Unknown';
+
+        // Requête d'insertion SQL
+        $sql = "SELECT * FROM equipements WHERE ID_EQUIPEMENTS = '$hostId'";
+        $result = mysqli_query($conn, $sql);
+
+        if (mysqli_num_rows($result) > 0) {
+            $sql = "UPDATE equipements SET 
+                    NAME_EQUIPEMENT = '$hostName', 
+                    debit_rx = '$kbpsRX', 
+                    debit_tx = '$kbpsTX', 
+                    address_ip = '$ipAddress', 
+                    temp_cpu = '$tempCPU', 
+                    temps_uptime = '$uptime', 
+                    latence = '$latency', 
+                    utilisation_cpu = '$cpuUsage',
+                    status = '$status' 
+                    WHERE ID_EQUIPEMENTS = '$hostId'";
+        } else {
+            $sql = "INSERT INTO equipements 
+                    (ID_EQUIPEMENTS, NAME_EQUIPEMENT, debit_rx, debit_tx, address_ip, temp_cpu, temps_uptime, latence, utilisation_cpu, status)
+                    VALUES ('$hostId', '$hostName', '$kbpsRX', '$kbpsTX', '$ipAddress', '$tempCPU', '$uptime', '$latency', '$cpuUsage', '$status')";
+        }
+
+        if ($conn->query($sql) === TRUE) {
+            echo "";
+        } else {
+            echo "Erreur lors de l'insertion des données : " . $conn->error;
         }
     }
-
-    $bitsTX = $matchingItemTX['lastvalue'] ?? 0;
-    $timeTX = (time() - ($matchingItemTX['lastclock'] ?? time()));
-    $kilobitsTX = $bitsTX / 1000;
-    $kbpsTX = ($timeTX > 0) ? $kilobitsTX / $timeTX : 0; // Éviter la division par zéro
-
-    // Trouver l'élément correspondant pour la température CPU
-    $matchingItemTempCPU = null;
-    foreach ($filteredItemsTempCPU as $itemTempCPU) {
-        if ($itemTempCPU['hostid'] === $hostId) {
-            $matchingItemTempCPU = $itemTempCPU;
-            break;
-        }
-    }
-    $tempCPU = $matchingItemTempCPU['lastvalue'] ?? 0;
-
-    // Trouver l'élément correspondant pour le temps d'uptime
-    $matchingItemUptime = null;
-    foreach ($filteredItemsUptime as $itemUptime) {
-        if ($itemUptime['hostid'] === $hostId) {
-            $matchingItemUptime = $itemUptime;
-            break;
-        }
-    }
-    $uptime = $matchingItemUptime['lastvalue'] ?? 0;
-
-    // Trouver l'élément correspondant pour la latence
-    $matchingItemLatency = null;
-    foreach ($filteredItemsLatency as $itemLatency) {
-        if ($itemLatency['hostid'] === $hostId) {
-            $matchingItemLatency = $itemLatency;
-            break;
-        }
-    }
-    $latency = $matchingItemLatency['lastvalue'] ?? 0;
-
-    // Trouver l'élément correspondant pour l'utilisation CPU
-    $matchingItemCpuUsage = null;
-    foreach ($filteredItemsCpuUsage as $itemCpuUsage) {
-        if ($itemCpuUsage['hostid'] === $hostId) {
-            $matchingItemCpuUsage = $itemCpuUsage;
-            break;
-        }
-    }
-    $cpuUsage = $matchingItemCpuUsage['lastvalue'] ?? 0;
-
-    // Supposons que $conn est déjà connecté à la base de données
-    $ipAddress = $hostIdIpMapping[$hostId] ?? '0.0.0.0'; // Fournir une adresse IP par défaut si non trouvée
-
-    // Requête d'insertion SQL
-    $sql = "SELECT * FROM equipements WHERE ID_EQUIPEMENTS = '$hostId'";
-    $result = mysqli_query($conn, $sql);
-
-    if (mysqli_num_rows($result) > 0) {
-        $sql = "UPDATE equipements SET 
-                NAME_EQUIPEMENT = '$hostName', 
-                debit_rx = '$kbpsRX', 
-                debit_tx = '$kbpsTX', 
-                address_ip = '$ipAddress', 
-                temp_cpu = '$tempCPU', 
-                temps_uptime = '$uptime', 
-                latence = '$latency', 
-                utilisation_cpu = '$cpuUsage' 
-                WHERE ID_EQUIPEMENTS = '$hostId'";
-    } else {
-        $sql = "INSERT INTO equipements 
-                (ID_EQUIPEMENTS, NAME_EQUIPEMENT, debit_rx, debit_tx, address_ip, temp_cpu, temps_uptime, latence, utilisation_cpu)
-                VALUES ('$hostId', '$hostName', '$kbpsRX', '$kbpsTX', '$ipAddress', '$tempCPU', '$uptime', '$latency', '$cpuUsage')";
-    }
-
-    if ($conn->query($sql) === TRUE) {
-        echo "";
-    } else {
-        echo "Erreur lors de l'insertion des données : " . $conn->error;
-    }
-}
     
-// Récupération des détails de l'équipement
-$sql = $conn->prepare("SELECT NAME_EQUIPEMENT, debit_rx, debit_tx, address_ip, temp_cpu, temps_uptime, latence, utilisation_cpu
-                       FROM equipements 
-                       WHERE ID_EQUIPEMENTS = ?");
+    // Récupération des détails de l'équipement
+    $sql = $conn->prepare("SELECT e.NAME_EQUIPEMENT, e.debit_rx, e.debit_tx, e.address_ip, e.temp_cpu, e.temps_uptime, e.latence, e.utilisation_cpu, e.status,
+    M.NOM_MAIRIE, S.LIBELLE_SERVICES, SA.LIBELLE_SALLE
+        FROM equipements e
+        LEFT JOIN salles SA ON SA.ID_SALLES = SA.ID_SALLES
+        LEFT JOIN services S ON S.ID_SERVICES = S.ID_SERVICES
+        LEFT JOIN mairie M ON M.ID_MAIRIE = S.ID_MAIRIE
+        WHERE e.ID_EQUIPEMENTS = ?");
+
+
+
+
 $sql->bind_param("i", $id_equipement);
 $sql->execute();
 $result = $sql->get_result();
@@ -234,7 +245,13 @@ if ($result->num_rows > 0) {
     $uptime = $row['temps_uptime'];
     $latency = $row['latence'];
     $cpuUsage = $row['utilisation_cpu'];
+    $status = $row['status'];
+    $nom_mairie = $row['NOM_MAIRIE']; // Ajout de cette ligne pour récupérer le nom de la mairie
+    $libelle_service = $row['LIBELLE_SERVICES']; // Ajout de cette ligne pour récupérer le libellé du service
+    $libelle_salle = $row['LIBELLE_SALLE']; // Ajout de cette ligne pour récupérer le libellé de la salle
 }
+
+ 
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -247,6 +264,7 @@ if ($result->num_rows > 0) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <style>
         .container {
             margin-top: 50px;
@@ -298,6 +316,7 @@ if ($result->num_rows > 0) {
             <thead>
                 <tr>
                     <th>Nom de l'équipement</th>
+                    <th>Status Equipement</th>
                     <th>Adresse IP</th>
                     <th>Débit RX</th>
                     <th>Débit TX</th>
@@ -307,27 +326,74 @@ if ($result->num_rows > 0) {
                     <th>Utilisation CPU</th>
                 </tr>
             </thead>
+<tbody>
+    <tr>
+        <td><?php echo htmlspecialchars($nom_equipement); ?></td>
+        <td>
+        <form id="pingForm">
+    <button type="button" class="btn btn-warning" onclick="ping()">Ping</button>
+</form>
+        </td>
+
+        <td><?php echo htmlspecialchars($ipAddress); ?></td>
+        <td><?php echo htmlspecialchars(number_format($debit_rx, 2, '.', '')); ?> ko/s</td>
+        <td><?php echo htmlspecialchars(number_format($debit_tx, 2, '.', '')); ?> ko/s</td>
+        <td><?php echo htmlspecialchars(number_format($temp_cpu, 2, '.', '')); ?> °C</td>
+        <td><?php echo htmlspecialchars(number_format($uptime, 2, '.', '')); ?> s</td>
+        <td><?php echo htmlspecialchars(number_format($latency, 2, '.', '')); ?> ms</td>
+        <td><?php echo htmlspecialchars(number_format($cpuUsage, 2, '.', '')); ?> %</td>
+    </tr>
+</tbody>
+
+        </table>
+        <div class="container">
+        <table class="table table-dark table-hover">
+            <thead>
+                <tr>
+                    <th>Nom de la Mairie</th>
+                    <th>Nom du Service</th>
+                    <th>Nom de la Salle</th>
+                </tr>
+            </thead>
             <tbody>
                 <tr>
-                    <td><?php echo htmlspecialchars($nom_equipement); ?></td>
-                    <td><?php echo htmlspecialchars($ipAddress); ?></td>
-                    <td><?php echo htmlspecialchars(number_format($debit_rx, 2, '.', '')); ?> ko/s</td>
-                    <td><?php echo htmlspecialchars(number_format($debit_tx, 2, '.', '')); ?> ko/s</td>
-                    <td><?php echo htmlspecialchars(number_format($temp_cpu, 2, '.', '')); ?> °C</td>
-                    <td><?php echo htmlspecialchars(number_format($uptime, 2, '.', '')); ?> s</td>
-                    <td><?php echo htmlspecialchars(number_format($latency, 2, '.', '')); ?> ms</td>
-                    <td><?php echo htmlspecialchars(number_format($cpuUsage, 2, '.', '')); ?> %</td>
+                    <td><?php echo htmlspecialchars($nom_mairie); ?></td>
+                    <td><?php echo htmlspecialchars($libelle_service); ?></td>
+                    <td><?php echo htmlspecialchars($libelle_salle); ?></td>
                 </tr>
             </tbody>
         </table>
-        <canvas id="myChart" width="400" height="400"></canvas>
     </div>
+
+    </div>
+    
+<?php include("ping.php");
+?>
+<script>
+    
+    function ping() {
+        var ipAddress = "<?php echo htmlspecialchars($ipAddress); ?>";
+        // Effectuer la requête AJAX
+        $.ajax({
+            type: "GET",
+            url: "ping.php?ip=" + ipAddress,
+            success: function(response) {
+                // Gérer la réponse du ping ici
+                alert(response);
+            },
+            error: function(xhr, status, error) {
+                // Gérer les erreurs ici
+                console.error(error);
+            }
+        });
+    }
+</script>
 </main>
 <script>
     // Recharger la page toutes les 5 secondes
     setInterval(function(){
         window.location.reload();
-    }, 5000);
+    }, 20000);
 </script>
 </body>
 </html>

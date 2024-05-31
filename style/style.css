@@ -20,3 +20,50 @@ footer {
     bottom: 0;
     
 }
+/* Styles pour les téléphones mobiles */
+@media (max-width: 600px) {
+    body, html {
+        flex-direction: column;
+    }
+
+    main {
+        padding: 10px; /* Ajout de padding pour le confort visuel */
+    }
+
+    footer {
+        padding: 8px 0;
+        font-size: 12px; /* Taille de texte plus petite pour les petits écrans */
+    }
+}
+
+/* Styles pour les tablettes */
+@media (min-width: 601px) and (max-width: 900px) {
+    body, html {
+        flex-direction: column;
+    }
+
+    main {
+        padding: 15px; /* Plus d'espace autour du contenu principal */
+    }
+
+    footer {
+        padding: 10px 0;
+        font-size: 14px; /* Taille de texte ajustée pour les tablettes */
+    }
+}
+
+/* Styles pour les ordinateurs de bureau et les laptops */
+@media (min-width: 901px) {
+    body, html {
+        flex-direction: column;
+    }
+
+    main {
+        padding: 20px; /* Encore plus d'espace pour une grande vue */
+    }
+
+    footer {
+        padding: 12px 0;
+        font-size: 16px; /* Taille de texte confortable pour les grands écrans */
+    }
+}

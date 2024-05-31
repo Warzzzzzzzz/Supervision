@@ -143,45 +143,43 @@ $result = $conn->query($query);
                 </tr>
             </thead>
             <tbody>
-                <?php
-                if ($result->num_rows > 0) {
-                    while ($row = $result->fetch_assoc()) {
-                        $highlight = (!empty($search_query) && stripos($row['NAME_EQUIPEMENT'], $search_query) !== false) ? 'table-warning' : '';
+    <?php
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $highlight = (!empty($search_query) && stripos($row['NAME_EQUIPEMENT'], $search_query) !== false) ? 'table-warning' : '';
 
-                        $has_alarm = $row['temp_cpu'] > 20;
-                        $alarm_class = $has_alarm ? 'btn-alarm' : '';
-                        $alarm_text = $has_alarm ? 'Alarme : Température CPU > 20°C' : 'Pas d\'alarme';
+            $has_alarm = $row['temp_cpu'] > 20;
+            $alarm_class = $has_alarm ? 'btn-alarm' : '';
+            $alarm_text = $has_alarm ? 'Alarme : Température CPU > 20°C' : 'Pas d\'alarme';
 
-                        echo "<tr class='$highlight'>";
-                        echo "<td>" . htmlspecialchars($row['LIBELLE_EQUIPEMENTS']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['NAME_EQUIPEMENT']) . "</td>";
-                        echo "<td>";
-                        echo "<form method='post' action='alarm.php' style='display:inline-block;'>";
-                        echo "<button class='btn btn-light $alarm_class' disabled>$alarm_text</button>";
-                        echo "</td>";
-                        echo "<td>";
-                        echo "<form method='post' action='details.php' style='display:inline-block;'>";
-                        echo "<input type='hidden' name='ID_EQUIPEMENTS' value='" . htmlspecialchars($row['ID_EQUIPEMENTS']) . "'>";
-                        echo "<button type='submit' class='btn btn-light'>Détails</button>";
-                        echo "</form>";
-                        echo "</td>";
-                        echo "</tr>";
-                    }
-                } else {
-                    echo "<tr><td colspan='4'>Aucun résultat trouvé.</td></tr>";
-                }
-                $conn->close();
-                ?>
-            </tbody>
+            echo "<tr class='$highlight'>";
+            echo "<td>" . htmlspecialchars($row['LIBELLE_EQUIPEMENTS']) . "</td>";
+            echo "<td>" . htmlspecialchars($row['NAME_EQUIPEMENT']) . "</td>";
+            echo "<td>";
+            echo "<form method='post' action='alarm.php' style='display:inline-block;'>";
+            echo "<input type='hidden' name='ID_EQUIPEMENTS' value='" . htmlspecialchars($row['ID_EQUIPEMENTS']) . "'>";
+            echo "<button type='submit' class='btn btn-light $alarm_class'>$alarm_text</button>";
+            echo "</form>";
+            echo "</td>";
+            echo "<td>";
+            echo "<form method='post' action='details.php' style='display:inline-block;'>";
+            echo "<input type='hidden' name='ID_EQUIPEMENTS' value='" . htmlspecialchars($row['ID_EQUIPEMENTS']) . "'>";
+            echo "<button type='submit' class='btn btn-light'>Détails</button>";
+            echo "</form>";
+            echo "</td>";
+            echo "</tr>";
+        }
+    } else {
+        echo "<tr><td colspan='4'>Aucun résultat trouvé.</td></tr>";
+    }
+    $conn->close();
+    ?>
+</tbody>
+
         </table>
     </div>
 </main>
-<script>
-    // Recharger la page toutes les 5 secondes
-    setInterval(function(){
-        window.location.reload();
-    }, 5000);
-</script>
+
 <footer>
     <p>Projet Supervision Inter-Ville réalisé par Nicolas LEGAL et Cyril MAGUIRE |2022-2024|</p>
 </footer>
