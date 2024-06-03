@@ -70,9 +70,6 @@ $alarm_count = $alarm_result->num_rows;
                       <li class="nav-item">
                         <a class="nav-link" href="gestionutilisateurs.php">Gestion utilisateurs</a>
                       </li>
-                      <form class="form-alarmes" method="post" action="alarm.php">
-                            <button type="submit" class="btn btn-light <?php echo $alarm_count > 0 ? 'btn-alarm' : ''; ?>">Alarmes</button>
-                        </form>
                     </ul>
                     <form class="form-account" method="post" action="account.php">
                             <button type="submit" class="btn btn-light">
@@ -93,7 +90,7 @@ $alarm_count = $alarm_result->num_rows;
         </div>
     </header>
     <main>
-      <img src="./img/presentation.png" class="presentation">
+      <img src="./img/2.png" class="presentation">
     </main>
     <script>
     // Recharger la page toutes les 5 secondes

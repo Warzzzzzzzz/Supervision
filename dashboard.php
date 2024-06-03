@@ -33,7 +33,7 @@ if (!empty($search_query)) {
     $query .= " WHERE NAME_EQUIPEMENT LIKE '%" . $conn->real_escape_string($search_query) . "%'";
 }
 
-$alarm_query = "SELECT ID_EQUIPEMENTS, NAME_EQUIPEMENT, 'Température CPU > 20°C' as cause FROM equipements WHERE temp_cpu > 20";
+$alarm_query = "SELECT ID_EQUIPEMENTS, NAME_EQUIPEMENT, '' as cause FROM equipements WHERE temp_cpu > 20";
 $alarm_result = $conn->query($alarm_query);
 $alarm_count = $alarm_result->num_rows;
 
@@ -103,9 +103,6 @@ $result = $conn->query($query);
                         <li class="nav-item">
                             <a class="nav-link" href="gestionutilisateurs.php">Gestion utilisateurs</a>
                         </li>
-                        <form class="form-alarmes" method="post" action="alarm.php">
-                                <button type="submit" class="btn btn-light <?php echo $alarm_count > 0 ? 'btn-alarm' : ''; ?>">Alarmes</button>
-                            </form>
                     </ul>
                     <form class="form-account" method="post" action="account.php">
                         <button type="submit" class="btn btn-light">
@@ -150,7 +147,7 @@ $result = $conn->query($query);
 
             $has_alarm = $row['temp_cpu'] > 20;
             $alarm_class = $has_alarm ? 'btn-alarm' : '';
-            $alarm_text = $has_alarm ? 'Alarme : Température CPU > 20°C' : 'Pas d\'alarme';
+            $alarm_text = $has_alarm ? 'Alarme' : 'Pas d\'alarme';
 
             echo "<tr class='$highlight'>";
             echo "<td>" . htmlspecialchars($row['LIBELLE_EQUIPEMENTS']) . "</td>";
@@ -179,6 +176,12 @@ $result = $conn->query($query);
         </table>
     </div>
 </main>
+<script>
+    // Recharger la page toutes les 5 secondes
+    setInterval(function(){
+        window.location.reload();
+    }, 10000);
+</script>
 
 <footer>
     <p>Projet Supervision Inter-Ville réalisé par Nicolas LEGAL et Cyril MAGUIRE |2022-2024|</p>

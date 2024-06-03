@@ -3,6 +3,8 @@ include("login.php");
 
 include("session_check.php");
 
+
+
 $message = '';
 
 if (isset($_GET['message'])) {
@@ -56,6 +58,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 }
+
+
 
 $sql = "SELECT u.id_users, u.nom_users, u.prenom_user, u.TYPE_USERS, u.username, t.LIBELLE_TYPE_USERS 
         FROM users u 
@@ -133,9 +137,6 @@ $conn->close();
                         <li class="nav-item">
                             <a class="nav-link" href="gestionutilisateurs.php">Gestion utilisateurs</a>
                         </li>
-                        <form class="form-alarmes" method="post" action="alarm.php">
-                            <button type="submit" class="btn btn-light <?php echo $alarm_count > 0 ? 'btn-alarm' : ''; ?>">Alarmes</button>
-                        </form>
                     </ul>
                     <form class="form-account" method="post" action="account.php">
                             <button type="submit" class="btn btn-light">
@@ -261,12 +262,6 @@ $conn->close();
                     </table>
                 </div>
     </main>
-    <script>
-    // Recharger la page toutes les 5 secondes
-    setInterval(function(){
-        window.location.reload();
-    }, 5000);
-</script>
     <footer>
         <p>Projet Supervision Inter-Ville réalisé par Nicolas LEGAL et Cyril MAGUIRE |2022-2024|</p>
     </footer>

@@ -33,7 +33,7 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
         return json_decode($response, true);
     }
 
-    $url = 'http://192.168.112.153/api_jsonrpc.php'; // URL de l'API Zabbix
+    $url = 'http://192.168.200.10/api_jsonrpc.php'; // URL de l'API Zabbix
     $authToken = '8efbc7b02e8381f751273e8909d605a5e31d0032161d4b051f9aa17c8055a1ea'; // Token d'authentification
 
     // Étape 1 : Récupérer tous les éléments
@@ -286,7 +286,6 @@ if ($result->num_rows > 0) {
             left: 50%;
             transform: translateX(-50%);
         }
-        
     </style>
 </head>
 <body>
@@ -294,7 +293,7 @@ if ($result->num_rows > 0) {
     <div>
         <nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
             <div class="container-fluid">
-                <a class="navbar-brand" href="#"><?php echo htmlspecialchars($nom_equipement); ?></a>
+                <a class="navbar-brand" href="#"><?php echo htmlspecialchars($nom_equipement ?? ''); ?></a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -326,71 +325,62 @@ if ($result->num_rows > 0) {
                     <th>Utilisation CPU</th>
                 </tr>
             </thead>
-<tbody>
-    <tr>
-        <td><?php echo htmlspecialchars($nom_equipement); ?></td>
-        <td>
-        <form id="pingForm">
-    <button type="button" class="btn btn-warning" onclick="ping()">Ping</button>
-</form>
-        </td>
-
-        <td><?php echo htmlspecialchars($ipAddress); ?></td>
-        <td><?php echo htmlspecialchars(number_format($debit_rx, 2, '.', '')); ?> ko/s</td>
-        <td><?php echo htmlspecialchars(number_format($debit_tx, 2, '.', '')); ?> ko/s</td>
-        <td><?php echo htmlspecialchars(number_format($temp_cpu, 2, '.', '')); ?> °C</td>
-        <td><?php echo htmlspecialchars(number_format($uptime, 2, '.', '')); ?> s</td>
-        <td><?php echo htmlspecialchars(number_format($latency, 2, '.', '')); ?> ms</td>
-        <td><?php echo htmlspecialchars(number_format($cpuUsage, 2, '.', '')); ?> %</td>
-    </tr>
-</tbody>
-
-        </table>
-        <div class="container">
-        <table class="table table-dark table-hover">
-            <thead>
-                <tr>
-                    <th>Nom de la Mairie</th>
-                    <th>Nom du Service</th>
-                    <th>Nom de la Salle</th>
-                </tr>
-            </thead>
             <tbody>
                 <tr>
-                    <td><?php echo htmlspecialchars($nom_mairie); ?></td>
-                    <td><?php echo htmlspecialchars($libelle_service); ?></td>
-                    <td><?php echo htmlspecialchars($libelle_salle); ?></td>
+                    <td><?php echo htmlspecialchars($nom_equipement ?? ''); ?></td>
+                    <td>
+                    <form id="pingForm">
+                        <button type="button" class="btn btn-warning" onclick="ping()">Ping</button>
+                    </form>
+                    </td>
+                    <td><?php echo htmlspecialchars($ipAddress ?? ''); ?></td>
+                    <td><?php echo htmlspecialchars(number_format($debit_rx ?? 0, 2, '.', '')); ?> ko/s</td>
+                    <td><?php echo htmlspecialchars(number_format($debit_tx ?? 0, 2, '.', '')); ?> ko/s</td>
+                    <td><?php echo htmlspecialchars(number_format($temp_cpu ?? 0, 2, '.', '')); ?> °C</td>
+                    <td><?php echo htmlspecialchars(number_format($uptime ?? 0, 2, '.', '')); ?> s</td>
+                    <td><?php echo htmlspecialchars(number_format($latency ?? 0, 2, '.', '')); ?> ms</td>
+                    <td><?php echo htmlspecialchars(number_format($cpuUsage ?? 0, 2, '.', '')); ?> %</td>
                 </tr>
             </tbody>
         </table>
+        <div class="container">
+            <table class="table table-dark table-hover">
+                <thead>
+                    <tr>
+                        <th>Nom de la Mairie</th>
+                        <th>Nom du Service</th>
+                        <th>Nom de la Salle</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><?php echo htmlspecialchars($nom_mairie ?? ''); ?></td>
+                        <td><?php echo htmlspecialchars($libelle_service ?? ''); ?></td>
+                        <td><?php echo htmlspecialchars($libelle_salle ?? ''); ?></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
-
-    </div>
-    
-<?php include("ping.php");
-?>
-<script>
-    
-    function ping() {
-        var ipAddress = "<?php echo htmlspecialchars($ipAddress); ?>";
-        // Effectuer la requête AJAX
-        $.ajax({
-            type: "GET",
-            url: "ping.php?ip=" + ipAddress,
-            success: function(response) {
-                // Gérer la réponse du ping ici
-                alert(response);
-            },
-            error: function(xhr, status, error) {
-                // Gérer les erreurs ici
-                console.error(error);
-            }
-        });
-    }
-</script>
+    <?php include("ping.php"); ?>
+    <script>
+        function ping() {
+            var ipAddress = "<?php echo htmlspecialchars($ipAddress ?? ''); ?>";
+            $.ajax({
+                type: "GET",
+                url: "ping.php?ip=" + ipAddress,
+                success: function(response) {
+                    alert(response);
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        }
+    </script>
 </main>
 <script>
-    // Recharger la page toutes les 5 secondes
+    // Recharger la page toutes les 20 secondes
     setInterval(function(){
         window.location.reload();
     }, 20000);

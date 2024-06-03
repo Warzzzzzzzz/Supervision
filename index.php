@@ -21,10 +21,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 header("Location: connexion.php");
                 exit();
             } else {
-                $message = 'Mot de passe incorrecte';
+                $message = 'Mot de passe incorrect';
             }
         } else {
-            $message = 'Mauvais identifiants';
+            $message = 'Nom utilisateur incorrect';
         }
         $stmt->close();
     }

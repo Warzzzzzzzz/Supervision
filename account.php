@@ -106,9 +106,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
                             <li class="nav-item">
                                 <a class="nav-link" href="gestionutilisateurs.php">Gestion utilisateurs</a>
                             </li>
-                            <form class="form-alarmes" method="post" action="alarm.php">
-                                <button type="submit" class="btn btn-light <?php echo $alarm_count > 0 ? 'btn-alarm' : ''; ?>">Alarmes</button>
-                            </form>
                         </ul>
                         <form class="form-account" method="post" action="account.php">
                             <button type="submit" class="btn btn-light">

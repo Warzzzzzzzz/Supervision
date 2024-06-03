@@ -92,9 +92,6 @@ $result = $conn->query($sql);
                             <li class="nav-item">
                                 <a class="nav-link" href="gestionutilisateurs.php">Gestion utilisateurs</a>
                             </li>
-                            <form class="form-alarmes" method="post" action="alarm.php">
-                            <button type="submit" class="btn btn-light <?php echo $alarm_count > 0 ? 'btn-alarm' : ''; ?>">Alarmes</button>
-                        </form>
                         </ul>
                         <form class="form-account" method="post" action="account.php">
                             <button type="submit" class="btn btn-light">
@@ -130,7 +127,7 @@ $result = $conn->query($sql);
                         while ($row = $result->fetch_assoc()) {
                             echo "<tr class='alarm'>";
                             echo "<td>" . htmlspecialchars($row['NAME_EQUIPEMENT']) . "</td>";
-                            echo "<td>Température CPU supérieure à 20°C</td>";
+                            echo "<td>Température CPU</td>";
                             echo "</tr>";
                         }
                     } else {
