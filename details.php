@@ -38,7 +38,7 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
 
     // Étape 1 : Récupérer tous les éléments
     $itemParams = [
-        'output' => ['hostid', 'lastvalue', 'name', 'lastclock', 'hostid'],
+        'output' => ['hostid', 'lastvalue', 'name', 'lastclock', 'hostid','status'],
         'selectHosts' => ['host']
     ];
 
@@ -220,21 +220,20 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
         }
     }
     
-    // Récupération des détails de l'équipement
-    $sql = $conn->prepare("SELECT e.NAME_EQUIPEMENT, e.debit_rx, e.debit_tx, e.address_ip, e.temp_cpu, e.temps_uptime, e.latence, e.utilisation_cpu, e.status,
-    M.NOM_MAIRIE, S.LIBELLE_SERVICES, SA.LIBELLE_SALLE
-        FROM equipements e
-        LEFT JOIN salles SA ON SA.ID_SALLES = SA.ID_SALLES
-        LEFT JOIN services S ON S.ID_SERVICES = S.ID_SERVICES
-        LEFT JOIN mairie M ON M.ID_MAIRIE = S.ID_MAIRIE
-        WHERE e.ID_EQUIPEMENTS = ?");
-
-
-
+    $sql = $conn->prepare("
+    SELECT e.NAME_EQUIPEMENT, e.debit_rx, e.debit_tx, e.address_ip, e.temp_cpu, e.temps_uptime, e.latence, e.utilisation_cpu, e.status,
+           M.NOM_MAIRIE, S.LIBELLE_SERVICES, SA.LIBELLE_SALLE
+    FROM equipements e
+    LEFT JOIN services S ON e.ID_EQUIPEMENTS = S.ID_EQUIPEMENT
+    LEFT JOIN salles SA ON S.ID_SALLES = SA.ID_SALLES
+    LEFT JOIN mairie M ON S.ID_MAIRIE = M.ID_MAIRIE
+    WHERE e.ID_EQUIPEMENTS = ?
+");
 
 $sql->bind_param("i", $id_equipement);
 $sql->execute();
 $result = $sql->get_result();
+
 if ($result->num_rows > 0) {
     $row = $result->fetch_assoc();
     $nom_equipement = $row['NAME_EQUIPEMENT'];
@@ -246,12 +245,14 @@ if ($result->num_rows > 0) {
     $latency = $row['latence'];
     $cpuUsage = $row['utilisation_cpu'];
     $status = $row['status'];
-    $nom_mairie = $row['NOM_MAIRIE']; // Ajout de cette ligne pour récupérer le nom de la mairie
-    $libelle_service = $row['LIBELLE_SERVICES']; // Ajout de cette ligne pour récupérer le libellé du service
-    $libelle_salle = $row['LIBELLE_SALLE']; // Ajout de cette ligne pour récupérer le libellé de la salle
-}
-
- 
+    $nom_mairie = $row['NOM_MAIRIE'];
+    $libelle_service = $row['LIBELLE_SERVICES'];
+    $libelle_salle = $row['LIBELLE_SALLE'];
+} else {
+    echo "Aucun équipement trouvé pour l'ID spécifié.";
+    exit;
+}}
+$conn->close();
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -343,26 +344,27 @@ if ($result->num_rows > 0) {
                 </tr>
             </tbody>
         </table>
-        <div class="container">
-            <table class="table table-dark table-hover">
-                <thead>
-                    <tr>
-                        <th>Nom de la Mairie</th>
-                        <th>Nom du Service</th>
-                        <th>Nom de la Salle</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><?php echo htmlspecialchars($nom_mairie ?? ''); ?></td>
-                        <td><?php echo htmlspecialchars($libelle_service ?? ''); ?></td>
-                        <td><?php echo htmlspecialchars($libelle_salle ?? ''); ?></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <?php include("ping.php"); ?>
+    <div class="container">
+      <table class="table table-dark table-hover">
+        <tr>
+        <thead>
+                <tr>
+                    <th>Nom Mairie</th>
+                    <th>Nom Service</th>
+                    <th>Nom de la Salle</th>
+                </tr>
+            </thead>
+            <tbody>
+          <tr>
+          <td><?php echo htmlspecialchars($nom_mairie ?? ''); ?></td>
+          <td><?php echo htmlspecialchars($libelle_service ?? ''); ?></td>
+          <td><?php echo htmlspecialchars($libelle_salle ?? ''); ?></td>
+        </tr>
+        </tbody>
+        </table>
+      </div>
+  </main>
+  <?php include("ping.php"); ?>
     <script>
         function ping() {
             var ipAddress = "<?php echo htmlspecialchars($ipAddress ?? ''); ?>";
@@ -388,8 +390,3 @@ if ($result->num_rows > 0) {
 <?php require('footer.php');?>
 </body>
 </html>
-<?php
-} else {
-    echo "Aucun équipement trouvé pour l'ID spécifié.";
-}
-?>

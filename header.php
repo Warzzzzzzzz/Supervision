@@ -18,7 +18,7 @@
                             <a class="nav-link" href="dashboard.php">DashBoard</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="gestionmairies.php">Gestion Mairies</a>
+                            <a class="nav-link" href="gestionmairies.php">Liste Mairies</a>
                         </li>
                         <?php
                         if($_SESSION['type_users'] != 'T'){
