@@ -67,9 +67,6 @@ $sql = "SELECT u.id_users, u.nom_users, u.prenom_user, u.TYPE_USERS, u.username,
         INNER JOIN type_users t ON u.TYPE_USERS = t.type_users";
 $result = $conn->query($sql);
 
-$alarm_query = "SELECT ID_EQUIPEMENTS, NAME_EQUIPEMENT, 'Température CPU > 20°C' as cause FROM equipements WHERE temp_cpu > 20";
-$alarm_result = $conn->query($alarm_query);
-$alarm_count = $alarm_result->num_rows;
 
 $conn->close();
 ?>

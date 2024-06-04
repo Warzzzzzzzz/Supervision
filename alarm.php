@@ -97,10 +97,10 @@ $result = $conn->query($sql);
         </div>
     </main>
     <script>
-    // Recharger la page toutes les 5 secondes
+    // Recharger la page toutes les 20 secondes
     setInterval(function(){
         window.location.reload();
-    }, 10000);
+    }, 20000);
 </script>
 <?php require('footer.php');?>
 </body>

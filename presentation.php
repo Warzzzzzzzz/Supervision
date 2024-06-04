@@ -49,12 +49,6 @@ $alarm_count = $alarm_result->num_rows;
   <main>
     <img src="./img/2.png" class="presentation">
   </main>
-  <script>
-  // Recharger la page toutes les 5 secondes
-  setInterval(function(){
-      window.location.reload();
-  }, 5000);
-</script>
 <?php require('footer.php');?>
 </body>
 </html>

@@ -1,10 +1,6 @@
 <?php
 include("session_check.php");
 require('accessDB.php');
-$alarm_query = "SELECT ID_EQUIPEMENTS, NAME_EQUIPEMENT, 'Température CPU > 20°C' as cause FROM equipements WHERE temp_cpu > 20";
-$alarm_result = $conn->query($alarm_query);
-$alarm_count = $alarm_result->num_rows;
-
 
 $sql = "SELECT ID_MAIRIE, NOM_MAIRIE, ADRESSE_MAIRIE, CP_MAIRIE FROM mairie";
 $result = $conn->query($sql);

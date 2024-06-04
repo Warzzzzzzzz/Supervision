@@ -33,10 +33,6 @@ if (!empty($search_query)) {
     $query .= " WHERE NAME_EQUIPEMENT LIKE '%" . $conn->real_escape_string($search_query) . "%'";
 }
 
-$alarm_query = "SELECT ID_EQUIPEMENTS, NAME_EQUIPEMENT, '' as cause FROM equipements WHERE temp_cpu > 20";
-$alarm_result = $conn->query($alarm_query);
-$alarm_count = $alarm_result->num_rows;
-
 $result = $conn->query($query);
 
 ?>
