@@ -1,14 +1,13 @@
 <?php
-include("login.php");
+
 include("session_check.php");
 
 if (!isset($_SESSION['id_user'])) {
     header("Location: index.php");
     exit();
 }
-$alarm_query = "SELECT ID_EQUIPEMENTS, NAME_EQUIPEMENT, 'Température CPU > 20°C' as cause FROM equipements WHERE temp_cpu > 20";
-$alarm_result = $conn->query($alarm_query);
-$alarm_count = $alarm_result->num_rows;
+
+require('accessDB.php');
 
 $id_user = $_SESSION['id_user']; 
 
@@ -81,49 +80,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
     </style>
 </head>
 <body>
-    <header>
-        <div>
-            <nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
-                <div class="container-fluid">
-                    <a class="navbar-brand" href="#"></a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse" id="navbarNav">
-                        <ul class="navbar-nav">
-                            <li class="nav-item">
-                                <a class="nav-link" aria-current="page" href="connexion.php">Accueil</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="presentation.php">Présentation</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="dashboard.php">DashBoard</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="gestionmairies.php">Gestion Mairies</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="gestionutilisateurs.php">Gestion utilisateurs</a>
-                            </li>
-                        </ul>
-                        <form class="form-account" method="post" action="account.php">
-                            <button type="submit" class="btn btn-light">
-                                <?php
-                                if (isset($_SESSION['nom_users']) && isset($_SESSION['prenom_user'])) {
-                                    echo htmlspecialchars($_SESSION['prenom_user']) . " " . htmlspecialchars($_SESSION['nom_users']);
-                                }
-                                ?>
-                            </button>
-                        </form>
-                        <form class="form-deconnexion" method="post" action="logout.php">
-                            <button type="submit" class="btn btn-danger">Se Déconnecter</button>
-                        </form>
-                    </div>
-                </div>
-            </nav>
-        </div>
-    </header>
+    <?php require('header.php');?>
     <main>
     <?php if (isset($message)): ?>
                 <div class="alert alert-info">
@@ -148,18 +105,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
                     <input type="text" class="form-control" id="username" name="username" value="<?php echo htmlspecialchars($user['username']); ?>" required>
                 </div>
                 <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
-                    <label for="password" class="user">Mot de Passe</label>
+                    <label for="password" class="user">Nouveau Mot de Passe</label>
                     <input type="password" class="form-control" id="password" name="password" required>
                 </div>
                 <button type="submit" class="btn btn-primary" name="submit">Mettre à jour</button>
             </form>
         </div>
     </main>
-    <script>
-    // Recharger la page toutes les 5 secondes
-    setInterval(function(){
-        window.location.reload();
-    }, 5000);
-</script>
+    <?php require('footer.php');?>
 </body>
 </html>

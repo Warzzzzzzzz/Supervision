@@ -1,6 +1,6 @@
 <?php
-include("login.php");
 include("session_check.php");
+require('accessDB.php');
 
 $message = '';
 
@@ -385,6 +385,7 @@ if ($result->num_rows > 0) {
         window.location.reload();
     }, 20000);
 </script>
+<?php require('footer.php');?>
 </body>
 </html>
 <?php

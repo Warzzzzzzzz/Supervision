@@ -1,12 +1,13 @@
 <?php
-include("login.php");
+session_start();
+if($_SESSION['type_users'] == 'T'){
+    header("Location: index.php");
+    exit();
+}
 
-include("session_check.php");
-
-
+require('accessDB.php');
 
 $message = '';
-
 if (isset($_GET['message'])) {
     $message = $_GET['message'];
 }
@@ -113,47 +114,7 @@ $conn->close();
     </style>
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="#"></a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link" aria-current="page" href="connexion.php">Accueil</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="presentation.php">Présentation</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="dashboard.php">DashBoard</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="gestionmairies.php">Gestion Mairies</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="gestionutilisateurs.php">Gestion utilisateurs</a>
-                        </li>
-                    </ul>
-                    <form class="form-account" method="post" action="account.php">
-                            <button type="submit" class="btn btn-light">
-                                <?php
-                                if (isset($_SESSION['nom_users']) && isset($_SESSION['prenom_user'])) {
-                                    echo "" . htmlspecialchars($_SESSION['prenom_user']) . " " . htmlspecialchars($_SESSION['nom_users']);
-                                }
-                                ?>
-                            </button>
-                        </form>
-                    <form class="form-deconnexion" method="post" action="logout.php">
-                        <button type="submit" class="btn btn-danger">Se Déconnecter</button>
-                    </form>
-                </div>
-            </div>
-        </nav>
-    </header>
+    <?php require('header.php');?>
     <main> 
         <?php if ($message): ?>
             <div class="alert alert-info" role="alert">
@@ -262,8 +223,6 @@ $conn->close();
                     </table>
                 </div>
     </main>
-    <footer>
-        <p>Projet Supervision Inter-Ville réalisé par Nicolas LEGAL et Cyril MAGUIRE |2022-2024|</p>
-    </footer>
+    <?php require('footer.php');?>
 </body>
 </html>
