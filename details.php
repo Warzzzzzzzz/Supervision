@@ -34,12 +34,12 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
     }
 
     $url = 'http://192.168.200.10/api_jsonrpc.php'; // URL de l'API Zabbix
-    $authToken = '8efbc7b02e8381f751273e8909d605a5e31d0032161d4b051f9aa17c8055a1ea'; // Token d'authentification
+    $authToken = '351b17a9d45e8c5b7ae30991d76406d4aea225831294d9989f6720008365fca2'; // Token d'authentification
 
-    // Étape 1 : Récupérer tous les éléments
+    // Étape 1 : item get 
     $itemParams = [
-        'output' => ['hostid', 'lastvalue', 'name', 'lastclock', 'hostid','status'],
-        'selectHosts' => ['host']
+        'output' => ['hostid', 'lastvalue', 'name', 'itemid','status','description'],
+        'selectHosts' => ['host','description']
     ];
 
     $itemResponse = zabbixApiRequest($url, $authToken, 'item.get', $itemParams);
@@ -77,7 +77,7 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
     
     $keywordsRX = "Bits received";
     $keywordsTX = "Bits sent";
-    $keywordsTempCPU = "CPU temperature";
+    $keywordsTempCPU = "Exhaust Fan: Temperature";
     $keywordsUptime = "Uptime";
     $keywordsLatency = "Latency";
     $keywordsCpuUsage = "CPU utilization";
@@ -97,7 +97,7 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
             $filteredItemsCpuUsage[] = $item;
         }
     }
-
+var_dump($filteredItemsTempCPU);
     // Récupérer les interfaces des hôtes pour obtenir les adresses IP
     $hostIds = array_unique(array_column($items, 'hostid'));
     $interfaceParams = [

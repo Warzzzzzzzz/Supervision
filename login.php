@@ -67,6 +67,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <label for="password" class="form-label">Mot de Passe</label>
                 <input type="password" class="form-control" id="password" name="password" required>
             </div>
+            <nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="motdepasseoublier.php">Mot de passe oublié ? </a></li>
+  </ol>
+</nav>
+
             <?php if (!empty($message)): ?>
                 <div class="mb-3 alert alert-danger">
                     <?php echo $message; ?>
