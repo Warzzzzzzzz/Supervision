@@ -164,7 +164,6 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
             }
         }
         $uptime = $matchingItemUptime['lastvalue'] ?? 0;
-
         // Trouver l'élément correspondant pour la latence
         $matchingItemLatency = null;
         foreach ($filteredItemsLatency as $itemLatency) {
@@ -241,7 +240,13 @@ if ($result->num_rows > 0) {
     $debit_tx = $row['debit_tx'];
     $ipAddress = $row['address_ip'];
     $temp_cpu = $row['temp_cpu'];
+    //convertir seconde en heures + minutes
     $uptime = $row['temps_uptime'];
+    $time = $uptime;
+    $h = floor($time/ 3600);
+    $i = floor($time / 60)%60;
+    $s = $time % 60;
+
     $latency = $row['latence'];
     $cpuUsage = $row['utilisation_cpu'];
     $status = $row['status'];
@@ -338,7 +343,7 @@ $conn->close();
                     <td><?php echo htmlspecialchars(number_format($debit_rx ?? 0, 2, '.', '')); ?> ko/s</td>
                     <td><?php echo htmlspecialchars(number_format($debit_tx ?? 0, 2, '.', '')); ?> ko/s</td>
                     <td><?php echo htmlspecialchars(number_format($temp_cpu ?? 0, 2, '.', '')); ?> °C</td>
-                    <td><?php echo htmlspecialchars(number_format($uptime ?? 0, 2, '.', '')); ?> s</td>
+                    <td><?php echo sprintf("%02dh %02dm %02d", $h, $i, $s); ?> s</td>
                     <td><?php echo htmlspecialchars(number_format($latency ?? 0, 2, '.', '')); ?> ms</td>
                     <td><?php echo htmlspecialchars(number_format($cpuUsage ?? 0, 2, '.', '')); ?> %</td>
                 </tr>

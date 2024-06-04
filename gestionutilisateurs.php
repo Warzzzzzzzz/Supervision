@@ -20,12 +20,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $username = $_POST['username'];
         $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
         $type_users = $_POST['type_users'];
+        $email = $_POST['email'];
 
 
-        $sql = "INSERT INTO users (nom_users, prenom_user, username, password, TYPE_USERS) VALUES (?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO users (nom_users, prenom_user, username, password, TYPE_USERS, email) VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
         if ($stmt) {
-            $stmt->bind_param("sssss", $nom_users, $prenom_user, $username, $password, $type_users);
+            $stmt->bind_param("ssssss", $nom_users, $prenom_user, $username, $password, $type_users, $email);
 
             if ($stmt->execute()) {
                 $message = 'Utilisateur créé avec succès';
@@ -41,11 +42,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $id_users = $_POST['id_users'];
         $new_username = $_POST['new_username'];
         $new_type_users = $_POST['new_type_users'];
+        $new_email = $_POST['new_email'];
 
-        $sql = "UPDATE users SET username = ?, TYPE_USERS = ? WHERE id_users = ?";
+        $sql = "UPDATE users SET username = ?, TYPE_USERS = ?, email = ? WHERE id_users = ?";
         $stmt = $conn->prepare($sql);
         if ($stmt) {
-            $stmt->bind_param("ssi", $new_username, $new_type_users, $id_users);
+            $stmt->bind_param("sssi", $new_username, $new_type_users, $new_email, $id_users);
 
             if ($stmt->execute()) {
                 $message = 'Utilisateur mis à jour avec succès';
@@ -60,17 +62,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-
-
-$sql = "SELECT u.id_users, u.nom_users, u.prenom_user, u.TYPE_USERS, u.username, t.LIBELLE_TYPE_USERS 
+$sql = "SELECT u.id_users, u.nom_users, u.prenom_user, u.TYPE_USERS, u.username, u.email, t.LIBELLE_TYPE_USERS 
         FROM users u 
         INNER JOIN type_users t ON u.TYPE_USERS = t.type_users";
 $result = $conn->query($sql);
 
-
 $conn->close();
 ?>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -155,6 +153,10 @@ $conn->close();
                                         <option value="T">Technicien</option>
                                     </select>
                                 </div>
+                                <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
+                                    <label for="email" class="user">Email</label>
+                                    <input type="text" class="form-control" id="email" name="email" required>
+                                </div>
                                 <button name="submit" type="submit" class="btn btn-success">Créer le compte</button>
                             </form>
                         </div>
@@ -169,9 +171,11 @@ $conn->close();
                             <th>Prénom</th>
                             <th>Type d'utilisateurs</th>
                             <th>Nom d'utilisateurs</th>
+                            <th>Email</th>
                             <th>Suppression d'utilisateurs</th>
                             <th>Modification login</th>
                             <th>Modification Role</th>
+                            <th>Email</th>
                             <th>Modification</th>
                         </tr>
                         <?php
@@ -190,6 +194,7 @@ $conn->close();
                                     }
                                 echo "</td>";
                                 echo "<td>" . $row['username'] . "</td>";
+                                echo "<td>" . $row['email'] . "</td>";
                                 echo "<td>";
                                 echo "<form method='post' action='supprimerutilisateurs.php' style='display:inline-block;'>";
                                 echo "<input type='hidden' name='id_users' value='" . $row['id_users'] . "'>";
@@ -206,6 +211,9 @@ $conn->close();
                                 echo "<option value='A'" . ($row['TYPE_USERS'] == 'A' ? ' selected' : '') . ">Administrateur</option>";
                                 echo "<option value='T'" . ($row['TYPE_USERS'] == 'T' ? ' selected' : '') . ">Technicien</option>";
                                 echo "</select>";
+                                echo "</td>";
+                                echo "<td>";
+                                echo "<input type='text' name='new_email' value='" . $row['email'] . "'>";
                                 echo "</td>";
                                 echo "<td>";
                                 echo "<button type='submit' name='update' class='btn btn-success'>Modifier</button>";

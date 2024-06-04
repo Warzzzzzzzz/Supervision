@@ -22,18 +22,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
     $nom_users = $_POST['nom_users'];
     $prenom_user = $_POST['prenom_user'];
     $username = $_POST['username'];
-    $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+    $current_password = $_POST['current_password'];
 
-    $sql_update = "UPDATE users SET nom_users = ?, prenom_user = ?, username = ?, password = ? WHERE id_users = ?";
-    $stmt_update = $conn->prepare($sql_update);
-    $stmt_update->bind_param("ssssi", $nom_users, $prenom_user, $username, $password, $id_user);
-    
-    if ($stmt_update->execute()) {
-        $message = "Les informations ont été mises à jour avec succès.";
-        $_SESSION['nom_users'] = $nom_users;
-        $_SESSION['prenom_user'] = $prenom_user;
+    // Vérifiez le mot de passe actuel
+    if (password_verify($current_password, $user['password'])) {
+        $new_password_hashed = password_hash($password, PASSWORD_BCRYPT);
+
+        $sql_update = "UPDATE users SET nom_users = ?, prenom_user = ?, username = ?, email = ?, password = ? WHERE id_users = ?";
+        $stmt_update = $conn->prepare($sql_update);
+        $stmt_update->bind_param("sssssi", $nom_users, $prenom_user, $username, $email, $new_password_hashed, $id_user);
+        
+        if ($stmt_update->execute()) {
+            $message = "Les informations ont été mises à jour avec succès.";
+            $_SESSION['nom_users'] = $nom_users;
+            $_SESSION['prenom_user'] = $prenom_user;
+        } else {
+            $message = "Une erreur est survenue lors de la mise à jour des informations.";
+        }
     } else {
-        $message = "Une erreur est survenue lors de la mise à jour des informations.";
+        $message = "Le mot de passe actuel est incorrect.";
     }
 }
 
@@ -105,8 +114,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
                     <input type="text" class="form-control" id="username" name="username" value="<?php echo htmlspecialchars($user['username']); ?>" required>
                 </div>
                 <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
+                    <label for="email" class="user">Email</label>
+                    <input type="text" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required>
+                </div>
+                <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
+                    <label for="current_password" class="user">Mot de Passe Actuel</label>
+                    <input type="password" class="form-control" id="current_password" name="current_password" required>
+                </div>
+                <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
                     <label for="password" class="user">Nouveau Mot de Passe</label>
-                    <input type="password" class="form-control" id="password" name="password" required>
+                    <input type="password" class="form-control" id="password" name="password"required>
                 </div>
                 <button type="submit" class="btn btn-primary" name="submit">Mettre à jour</button>
             </form>
