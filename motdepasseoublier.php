@@ -55,6 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
             <div class="d-grid">
                 <button name="submit" type="submit" class="btn btn-success">Envoyée un lien</button>
+                
             </div>
         </form>
     </main>
