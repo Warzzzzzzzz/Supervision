@@ -1,13 +1,19 @@
 <?php
 if (isset($_GET['ip'])) {
     $ipAddress = escapeshellarg($_GET['ip']);
-    // Exécutez la commande ping
-    exec("ping -n 4 $ipAddress", $output, $status); // Utilisation de -c pour Linux, utilisez -n pour Windows
-    $response = htmlspecialchars(implode(" ", $output), ENT_QUOTES, 'UTF-8');
-    if ($status === 0) {
-        echo json_encode(['status' => 'Online', 'response' => $response]);
+    
+    // Pour les systèmes Unix/Linux
+    $pingResult = shell_exec("ping -n 4 $ipAddress");
+    
+    // Pour les systèmes Windows, décommentez la ligne suivante et commentez celle du dessus
+    // $pingResult = shell_exec("ping -n 4 $ipAddress");
+
+    if ($pingResult) {
+        echo "<pre>$pingResult</pre>";
     } else {
-        echo json_encode(['status' => 'Offline', 'response' => $response]);
+        echo "Échec du ping. Vérifiez l'adresse IP et réessayez.";
     }
-} 
+} else {
+    echo "Aucune adresse IP fournie.";
+}
 ?>

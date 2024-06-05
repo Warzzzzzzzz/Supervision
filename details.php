@@ -97,7 +97,6 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
             $filteredItemsCpuUsage[] = $item;
         }
     }
-var_dump($filteredItemsTempCPU);
     // Récupérer les interfaces des hôtes pour obtenir les adresses IP
     $hostIds = array_unique(array_column($items, 'hostid'));
     $interfaceParams = [

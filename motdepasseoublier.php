@@ -1,14 +1,35 @@
 <?php
 require('accessDB.php');
+require ('./PHPMailer-Files/script.php');
 
-// Vérifier si le formulaire a été soumis
+
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Vérifier si l'adresse e-mail a été fournie
     if (isset($_POST['email'])) {
         $email = $_POST['email'];
-
+        
+        // Générer un token unique
+        $token = bin2hex(random_bytes(32)); // Génère un token de 64 caractères hexadécimaux (32 bytes)
+        
+        // Assurez-vous d'avoir une connexion à la base de données correctement configurée ici
+        // Remplacez 'votre_table' par le nom de votre table dans la base de données
+        $sql = "UPDATE users SET token = ? WHERE email = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ss", $token, $email);
+        $stmt->execute();
+        
+        // Préparez le lien avec le token inclus
+        $resetLink = 'http://192.168.200.9/Supervision/newpassword.php?token=' . $token;
+        
+        // Envoyer l'e-mail avec le lien de réinitialisation
+        $subject = 'Réinitialiser le mot de passe';
+        $message = 'Cliquez sur le lien suivant pour réinitialiser votre mot de passe : ' . $resetLink;
+        sendmail($email, $subject, $message);
     }
 }
+
+
 ?>
 <!DOCTYPE html>
 <html lang="fr">
