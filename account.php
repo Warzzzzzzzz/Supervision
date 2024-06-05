@@ -57,6 +57,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
     <link rel="stylesheet" href="./style/style.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         .logo-container {
             display: flex;
@@ -64,7 +65,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
             align-items: center;
             height: 75vh; 
         }
-
         .logo {
             max-width: 100%;
             max-height: 100%; 
@@ -85,6 +85,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
             50% {
                 background-color: #dc3545;
             }
+        }
+        .password-wrapper {
+            position: relative;
+        }
+        .password-wrapper .toggle-password {
+            position: absolute;
+            top: 65%;
+            right: 15px;
+            transform: translateY(-50%);
+            cursor: pointer;
         }
     </style>
 </head>
@@ -117,18 +127,50 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
                     <label for="email" class="user">Email</label>
                     <input type="text" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required>
                 </div>
-                <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
+                <div class="shadow p-2 mb-4 bg-body-tertiary rounded password-wrapper">
                     <label for="current_password" class="user">Mot de Passe Actuel</label>
                     <input type="password" class="form-control" id="current_password" name="current_password" required>
+                    <i class="fas fa-eye toggle-password" id="toggleCurrentPassword"></i>
                 </div>
-                <div class="shadow p-2 mb-4 bg-body-tertiary rounded">
+                <div class="shadow p-2 mb-4 bg-body-tertiary rounded password-wrapper">
                     <label for="password" class="user">Nouveau Mot de Passe</label>
-                    <input type="password" class="form-control" id="password" name="password"required>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                    <i class="fas fa-eye toggle-password" id="togglePassword"></i>
                 </div>
                 <button type="submit" class="btn btn-primary" name="submit">Mettre à jour</button>
             </form>
         </div>
     </main>
     <?php require('footer.php');?>
+    <script>
+    document.getElementById('toggleCurrentPassword').addEventListener('click', function () {
+        var passwordInput = document.getElementById('current_password');
+        var toggleIcon = this;
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+        }
+    });
+
+    document.getElementById('togglePassword').addEventListener('click', function () {
+        var passwordInput = document.getElementById('password');
+        var toggleIcon = this;
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+        }
+    });
+    </script>
 </body>
 </html>
+
