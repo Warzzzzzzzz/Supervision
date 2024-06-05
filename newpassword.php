@@ -24,7 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $userId = $user['id_users']; // Remplacez 'id' par le nom de votre colonne d'identifiant utilisateur
             $password = password_hash($password, PASSWORD_DEFAULT); // Hachez le nouveau mot de passe
             
-            $updateSql = "UPDATE users SET password = ? WHERE id_users = ?";
+            $updateSql = "UPDATE users SET password = ?, token = '' WHERE id_users = ?";
             $updateStmt = $conn->prepare($updateSql);
             $updateStmt->bind_param("si", $password, $userId);
             $updateStmt->execute();
