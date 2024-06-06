@@ -2,11 +2,20 @@
 include("session_check.php");
 require('accessDB.php');
 
-$sql = "SELECT NAME_EQUIPEMENT, temp_cpu 
+// Requête pour vérifier les équipements dont la température CPU > 65 ou l'utilisation CPU > 70%
+$sql = "SELECT NAME_EQUIPEMENT, temp_cpu, utilisation_cpu 
         FROM equipements 
-        WHERE temp_cpu > 20"; // Condition pour déclencher une alarme
+        WHERE temp_cpu > 65 OR utilisation_cpu > 70"; 
 
-$alarm_query = "SELECT ID_EQUIPEMENTS, NAME_EQUIPEMENT, 'Température CPU > 20°C' as cause FROM equipements WHERE temp_cpu > 20";
+// Requête pour récupérer les alarmes avec les causes spécifiques
+$alarm_query = "SELECT ID_EQUIPEMENTS, NAME_EQUIPEMENT, 
+                CASE 
+                    WHEN temp_cpu > 65 THEN 'Température CPU > 65°C' 
+                    WHEN utilisation_cpu > 70 THEN 'Utilisation CPU > 70%' 
+                END as cause 
+                FROM equipements 
+                WHERE temp_cpu > 65 OR utilisation_cpu > 70";
+
 $alarm_result = $conn->query($alarm_query);
 $alarm_count = $alarm_result->num_rows;
 
@@ -70,7 +79,7 @@ $result = $conn->query($sql);
     <?php require('header.php');?>
     <main class="table-container">
         <div>
-            <h1>Alarmes active</h1>
+            <h1>Alarmes actives</h1>
             <table class="table table-dark table-hover">
                 <thead>
                     <tr>
@@ -84,7 +93,11 @@ $result = $conn->query($sql);
                         while ($row = $result->fetch_assoc()) {
                             echo "<tr class='alarm'>";
                             echo "<td>" . htmlspecialchars($row['NAME_EQUIPEMENT']) . "</td>";
-                            echo "<td>Température CPU</td>";
+                            if ($row['temp_cpu'] > 65) {
+                                echo "<td>Température CPU importante</td>";
+                            } elseif ($row['utilisation_cpu'] > 70) {
+                                echo "<td>Utilisation CPU importante</td>";
+                            }
                             echo "</tr>";
                         }
                     } else {

@@ -9,7 +9,7 @@ if (isset($_GET['ip'])) {
     // $pingResult = shell_exec("ping -n 4 $ipAddress");
 
     if ($pingResult) {
-        echo "<pre>$pingResult</pre>";
+        echo $pingResult;
     } else {
         echo "Échec du ping. Vérifiez l'adresse IP et réessayez.";
     }

@@ -1,16 +1,15 @@
 <?php
-
 include("session_check.php");
 require('accessDB.php');
 
 $message = '';
-
 $search_query = '';
+
 if (isset($_GET['submit'])) {
     $search_query = $_GET['search'];
 }
 
-$sql = "SELECT e.ID_EQUIPEMENTS, e.LIBELLE_EQUIPEMENTS, e.NAME_EQUIPEMENT, e.created_at
+$sql = "SELECT e.ID_EQUIPEMENTS, e.LIBELLE_EQUIPEMENTS, e.NAME_EQUIPEMENT, e.created_at, e.temp_cpu
         FROM equipements e
         INNER JOIN (
             SELECT NAME_EQUIPEMENT, MAX(created_at) as MaxDate
@@ -20,21 +19,16 @@ $sql = "SELECT e.ID_EQUIPEMENTS, e.LIBELLE_EQUIPEMENTS, e.NAME_EQUIPEMENT, e.cre
         ON e.NAME_EQUIPEMENT = latest.NAME_EQUIPEMENT AND e.created_at = latest.MaxDate";
 
 if (!empty($search_query)) {
-    $sql .= " WHERE e.NAME_EQUIPEMENT LIKE '%$search_query%'";
+    $sql .= " WHERE e.NAME_EQUIPEMENT LIKE ?";
 }
 
-$result = $conn->query($sql);
-
-// Vérification des alarmes
-$search_query = isset($_GET['search']) ? $_GET['search'] : '';
-
-$query = "SELECT ID_EQUIPEMENTS, LIBELLE_EQUIPEMENTS, NAME_EQUIPEMENT, temp_cpu FROM equipements";
+$stmt = $conn->prepare($sql);
 if (!empty($search_query)) {
-    $query .= " WHERE NAME_EQUIPEMENT LIKE '%" . $conn->real_escape_string($search_query) . "%'";
+    $search_param = "%$search_query%";
+    $stmt->bind_param("s", $search_param);
 }
-
-$result = $conn->query($query);
-
+$stmt->execute();
+$result = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -48,12 +42,11 @@ $result = $conn->query($query);
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <style>
-    
         .navbar-nav {
             flex-grow: 1;
         }
         .form-deconnexion {
-            margin-left: 20px; 
+            margin-left: 20px;
         }
         .table th, .table td {
             text-align: center;
@@ -92,8 +85,7 @@ $result = $conn->query($query);
     if ($result->num_rows > 0) {
         while ($row = $result->fetch_assoc()) {
             $highlight = (!empty($search_query) && stripos($row['NAME_EQUIPEMENT'], $search_query) !== false) ? 'table-warning' : '';
-
-            $has_alarm = $row['temp_cpu'] > 20;
+            $has_alarm = $row['temp_cpu'] > 65;
             $alarm_class = $has_alarm ? 'btn-alarm' : '';
             $alarm_text = $has_alarm ? 'Alarme' : 'Pas d\'alarme';
 
@@ -117,15 +109,15 @@ $result = $conn->query($query);
     } else {
         echo "<tr><td colspan='4'>Aucun résultat trouvé.</td></tr>";
     }
+    $stmt->close();
     $conn->close();
     ?>
-</tbody>
-
+            </tbody>
         </table>
     </div>
 </main>
 <script>
-    // Recharger la page toutes les 5 secondes
+    // Recharger la page toutes les 10 secondes
     setInterval(function(){
         window.location.reload();
     }, 10000);

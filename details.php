@@ -38,8 +38,8 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
 
     // Étape 1 : item get 
     $itemParams = [
-        'output' => ['hostid', 'lastvalue', 'name', 'itemid','status','description'],
-        'selectHosts' => ['host','description']
+        'output' => ['hostid', 'lastvalue', 'name', 'lastclock','itemid'],
+        'selectHosts' => ['host']
     ];
 
     $itemResponse = zabbixApiRequest($url, $authToken, 'item.get', $itemParams);
@@ -51,7 +51,7 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
 
     // Récupérer le statut des hôtes
     $hostParams = [
-        'output' => ['hostid', 'name', 'status']
+        'output' => ['hostid', 'name', 'status','itemid']
     ];
 
     $hostResponse = zabbixApiRequest($url, $authToken, 'host.get', $hostParams);
@@ -61,11 +61,11 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
     }
     $hosts = $hostResponse['result'];
 
-    // Créer un dictionnaire pour mapper hostid à status
-    $hostStatusMapping = [];
-    foreach ($hosts as $host) {
-        $hostStatusMapping[$host['hostid']] = $host['status'] == 0 ? 'Online' : 'Offline';
-    }
+    // // Créer un dictionnaire pour mapper hostid à status
+    // $hostStatusMapping = [];
+    // foreach ($hosts as $host) {
+    //     $hostStatusMapping[$host['hostid']] = $host['status'] == 0 ? 'Online' : 'Offline';
+    // }
 
     // Filtrer les éléments pour les différents métriques
     $filteredItemsRX = [];
@@ -74,20 +74,22 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
     $filteredItemsUptime = [];
     $filteredItemsLatency = [];
     $filteredItemsCpuUsage = [];
+    $filteredItemsStatus = [];
     
     $keywordsRX = "Bits received";
     $keywordsTX = "Bits sent";
-    $keywordsTempCPU = "Exhaust Fan: Temperature";
+    $keywordsTempCPU = ["CPU: Temperature","CPU1 Temp: Temperature"];
     $keywordsUptime = "Uptime";
     $keywordsLatency = "Latency";
-    $keywordsCpuUsage = "CPU utilization";
+    $keywordsCpuUsage = "Windows: CPU utilization";
+    $keywordsStatus = ["agent availability"];
 
     foreach ($items as $item) {
         if (strpos($item['name'], $keywordsRX) !== false) {
             $filteredItemsRX[] = $item;
         } elseif (strpos($item['name'], $keywordsTX) !== false) {
             $filteredItemsTX[] = $item;
-        } elseif (strpos($item['name'], $keywordsTempCPU) !== false) {
+        } elseif (array_reduce($keywordsTempCPU, fn($carry, $keyword) => $carry || strpos($item['name'], $keyword) !== false, false)) {
             $filteredItemsTempCPU[] = $item;
         } elseif (strpos($item['name'], $keywordsUptime) !== false) {
             $filteredItemsUptime[] = $item;
@@ -95,6 +97,8 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
             $filteredItemsLatency[] = $item;
         } elseif (strpos($item['name'], $keywordsCpuUsage) !== false) {
             $filteredItemsCpuUsage[] = $item;
+        } elseif (array_reduce($keywordsStatus, fn($carry, $keyword) => $carry || strpos($item['name'], $keyword) !== false, false)) {
+            $filteredItemsStatus[] = $item;
         }
     }
     // Récupérer les interfaces des hôtes pour obtenir les adresses IP
@@ -182,12 +186,18 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
             }
         }
         $cpuUsage = $matchingItemCpuUsage['lastvalue'] ?? 0;
-
+                
+        // Trouver l'élément correspondant pour le status
+        $matchingItemStatus = null;
+        foreach ($filteredItemsStatus as $itemStatus) {
+            if ($itemStatus['hostid'] === $hostId) {
+                    $matchingItemStatus = $itemStatus;
+                    break;
+            }
+        }
+        $status = $matchingItemStatus['lastvalue'] ?? 0;
         // Supposons que $conn est déjà connecté à la base de données
         $ipAddress = $hostIdIpMapping[$hostId] ?? '0.0.0.0'; // Fournir une adresse IP par défaut si non trouvée
-
-        // Ajouter le statut
-        $status = $hostStatusMapping[$hostId] ?? 'Unknown';
 
         // Requête d'insertion SQL
         $sql = "SELECT * FROM equipements WHERE ID_EQUIPEMENTS = '$hostId'";
@@ -203,7 +213,7 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
                     temps_uptime = '$uptime', 
                     latence = '$latency', 
                     utilisation_cpu = '$cpuUsage',
-                    status = '$status' 
+                    status_s = '$status' 
                     WHERE ID_EQUIPEMENTS = '$hostId'";
         } else {
             $sql = "INSERT INTO equipements 
@@ -219,7 +229,7 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
     }
     
     $sql = $conn->prepare("
-    SELECT e.NAME_EQUIPEMENT, e.debit_rx, e.debit_tx, e.address_ip, e.temp_cpu, e.temps_uptime, e.latence, e.utilisation_cpu, e.status,
+    SELECT e.NAME_EQUIPEMENT, e.debit_rx, e.debit_tx, e.address_ip, e.temp_cpu, e.temps_uptime, e.latence, e.utilisation_cpu, e.status_s,
            M.NOM_MAIRIE, S.LIBELLE_SERVICES, SA.LIBELLE_SALLE
     FROM equipements e
     LEFT JOIN services S ON e.ID_EQUIPEMENTS = S.ID_EQUIPEMENT
@@ -248,7 +258,7 @@ if ($result->num_rows > 0) {
 
     $latency = $row['latence'];
     $cpuUsage = $row['utilisation_cpu'];
-    $status = $row['status'];
+    $status = $row['status_s'];
     $nom_mairie = $row['NOM_MAIRIE'];
     $libelle_service = $row['LIBELLE_SERVICES'];
     $libelle_salle = $row['LIBELLE_SALLE'];
@@ -291,6 +301,10 @@ $conn->close();
             left: 50%;
             transform: translateX(-50%);
         }
+        .icon {
+            width: 24px; /* Définir la largeur de l'image */
+            height: 24px; /* Définir la hauteur de l'image */
+        }
     </style>
 </head>
 <body>
@@ -328,15 +342,21 @@ $conn->close();
                     <th>Uptime</th>
                     <th>Latence</th>
                     <th>Utilisation CPU</th>
+                    <th>Test Ping</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td><?php echo htmlspecialchars($nom_equipement ?? ''); ?></td>
-                    <td>
-                    <form id="pingForm">
+                    <!-- <form id="pingForm">
                         <button type="button" class="btn btn-warning" onclick="ping()">Ping</button>
-                    </form>
+                    </form> -->
+                    <td>
+                        <?php if ($status == 1): ?>
+                            <img src="./img/valide.png" class="icon" alt="Valide">
+                        <?php else: ?>
+                            <img src="./img/refuse.png" class="icon" alt="Refuse">
+                        <?php endif; ?>
                     </td>
                     <td><?php echo htmlspecialchars($ipAddress ?? ''); ?></td>
                     <td><?php echo htmlspecialchars(number_format($debit_rx ?? 0, 2, '.', '')); ?> ko/s</td>
@@ -345,6 +365,11 @@ $conn->close();
                     <td><?php echo sprintf("%02dh %02dm %02d", $h, $i, $s); ?> s</td>
                     <td><?php echo htmlspecialchars(number_format($latency ?? 0, 2, '.', '')); ?> ms</td>
                     <td><?php echo htmlspecialchars(number_format($cpuUsage ?? 0, 2, '.', '')); ?> %</td>
+                    <td>
+                    <form id="pingForm">
+                        <button type="button" class="btn btn-warning" onclick="ping()">Ping</button>
+                    </form>
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -389,8 +414,8 @@ $conn->close();
     // Recharger la page toutes les 20 secondes
     setInterval(function(){
         window.location.reload();
-    }, 20000);
+    }, 10000);
 </script>
 <?php require('footer.php');?>
 </body>
-</html>
+</html> 
