@@ -93,7 +93,12 @@ $result = $conn->query($sql);
     <?php require('header.php');?>
     <main class="table-container">
         <div>
-            <h1>Alarmes actives</h1>
+        <div class="header-container">
+        <form class="form-retour" method="post" action="dashboard.php">
+                        <button type="submit" class="btn btn-light">Retour</button>
+                    </form>
+            <h1>Alarmes actives</h1>         
+                    </div>
             <table class="table table-dark table-hover">
                 <thead>
                     <tr>

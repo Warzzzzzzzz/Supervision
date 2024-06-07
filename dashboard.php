@@ -167,6 +167,7 @@ $alarms = [];
     // Recharger la page toutes les 30 secondes
     setInterval(function(){
         window.location.reload();
+        document.querySelector('iframe[name="detailsFrame"]').contentWindow.location.reload();
     }, 30000);
 
     // Afficher le pop-up s'il y a des alarmes
@@ -175,6 +176,7 @@ $alarms = [];
         modal.show();
     <?php } ?>
 </script>
+
 <?php require('footer.php');?>
 </body>
 </html>
