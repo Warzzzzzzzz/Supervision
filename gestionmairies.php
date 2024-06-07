@@ -2,9 +2,11 @@
 include("session_check.php");
 require('accessDB.php');
 
+
 $sql = "SELECT ID_MAIRIE, NOM_MAIRIE, ADRESSE_MAIRIE, CP_MAIRIE FROM mairie";
 $result = $conn->query($sql);
 $conn->close();
+
 ?>
 <!DOCTYPE html>
 <html lang="fr">

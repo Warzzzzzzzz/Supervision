@@ -2,22 +2,36 @@
 include("session_check.php");
 require('accessDB.php');
 
-// Requête pour vérifier les équipements dont la température CPU > 65 ou l'utilisation CPU > 70%
-$sql = "SELECT NAME_EQUIPEMENT, temp_cpu, utilisation_cpu 
+// Requête pour vérifier les équipements dont la température CPU > 65 ou l'utilisation CPU > 70% ou le statut = 0
+$sql = "SELECT NAME_EQUIPEMENT, temp_cpu, utilisation_cpu, status_s
         FROM equipements 
-        WHERE temp_cpu > 65 OR utilisation_cpu > 70"; 
+        WHERE temp_cpu > 65 OR utilisation_cpu > 70 OR status_s = 0"; 
 
 // Requête pour récupérer les alarmes avec les causes spécifiques
 $alarm_query = "SELECT ID_EQUIPEMENTS, NAME_EQUIPEMENT, 
                 CASE 
                     WHEN temp_cpu > 65 THEN 'Température CPU > 65°C' 
                     WHEN utilisation_cpu > 70 THEN 'Utilisation CPU > 70%' 
+                    WHEN status_s < 1 THEN 'Statut de l\'équipement < 1'
                 END as cause 
                 FROM equipements 
-                WHERE temp_cpu > 65 OR utilisation_cpu > 70";
+                WHERE temp_cpu > 65 OR utilisation_cpu > 70 OR status_s = 0";
 
 $alarm_result = $conn->query($alarm_query);
 $alarm_count = $alarm_result->num_rows;
+
+$alarms = [];
+
+if ($alarm_count > 0) {
+    while ($row = $alarm_result->fetch_assoc()) {
+        $alarms[] = [
+            'name' => $row['NAME_EQUIPEMENT'],
+            'cause' => $row['cause']
+        ];
+    }
+}
+
+$_SESSION['alarms'] = $alarms;
 
 $result = $conn->query($sql);
 ?>
@@ -97,6 +111,8 @@ $result = $conn->query($sql);
                                 echo "<td>Température CPU importante</td>";
                             } elseif ($row['utilisation_cpu'] > 70) {
                                 echo "<td>Utilisation CPU importante</td>";
+                            } elseif ($row['status_s'] < 1) {
+                                echo "<td>Statut de l'équipement </td>";
                             }
                             echo "</tr>";
                         }
@@ -110,10 +126,10 @@ $result = $conn->query($sql);
         </div>
     </main>
     <script>
-    // Recharger la page toutes les 20 secondes
+    // Recharger la page toutes les 30 secondes
     setInterval(function(){
         window.location.reload();
-    }, 20000);
+    }, 30000);
 </script>
 <?php require('footer.php');?>
 </body>

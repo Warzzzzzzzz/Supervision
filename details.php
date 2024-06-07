@@ -32,9 +32,9 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
 
         return json_decode($response, true);
     }
-
+}
     $url = 'http://192.168.200.10/api_jsonrpc.php'; // URL de l'API Zabbix
-    $authToken = '351b17a9d45e8c5b7ae30991d76406d4aea225831294d9989f6720008365fca2'; // Token d'authentification
+    $authToken = '746de1e07e28b2713bc84d9b9891eb86d412cdb7771dd0f66ba01abe60d2a18c'; // Token d'authentification
 
     // Étape 1 : item get 
     $itemParams = [
@@ -51,7 +51,7 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
 
     // Récupérer le statut des hôtes
     $hostParams = [
-        'output' => ['hostid', 'name', 'status','itemid']
+        'output' => ['hostid', 'host', 'status']
     ];
 
     $hostResponse = zabbixApiRequest($url, $authToken, 'host.get', $hostParams);
@@ -60,12 +60,6 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
         exit;
     }
     $hosts = $hostResponse['result'];
-
-    // // Créer un dictionnaire pour mapper hostid à status
-    // $hostStatusMapping = [];
-    // foreach ($hosts as $host) {
-    //     $hostStatusMapping[$host['hostid']] = $host['status'] == 0 ? 'Online' : 'Offline';
-    // }
 
     // Filtrer les éléments pour les différents métriques
     $filteredItemsRX = [];
@@ -131,7 +125,7 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
         $bitsRX = $itemRX['lastvalue'] ?? 0;
         $timeRX = (time() - ($itemRX['lastclock'] ?? time()));
 
-        $kilobitsRX = $bitsRX / 1000;
+        $kilobitsRX = $bitsRX / 1024;
         $kbpsRX = ($timeRX > 0) ? $kilobitsRX / $timeRX : 0; // Éviter la division par zéro
 
         // Trouver l'élément correspondant pour le débit TX
@@ -145,7 +139,7 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
 
         $bitsTX = $matchingItemTX['lastvalue'] ?? 0;
         $timeTX = (time() - ($matchingItemTX['lastclock'] ?? time()));
-        $kilobitsTX = $bitsTX / 1000;
+        $kilobitsTX = $bitsTX / 1024;
         $kbpsTX = ($timeTX > 0) ? $kilobitsTX / $timeTX : 0; // Éviter la division par zéro
 
         // Trouver l'élément correspondant pour la température CPU
@@ -217,7 +211,7 @@ if (isset($_POST['ID_EQUIPEMENTS'])) {
                     WHERE ID_EQUIPEMENTS = '$hostId'";
         } else {
             $sql = "INSERT INTO equipements 
-                    (ID_EQUIPEMENTS, NAME_EQUIPEMENT, debit_rx, debit_tx, address_ip, temp_cpu, temps_uptime, latence, utilisation_cpu, status)
+                    (ID_EQUIPEMENTS, NAME_EQUIPEMENT, debit_rx, debit_tx, address_ip, temp_cpu, temps_uptime, latence, utilisation_cpu, status_s)
                     VALUES ('$hostId', '$hostName', '$kbpsRX', '$kbpsTX', '$ipAddress', '$tempCPU', '$uptime', '$latency', '$cpuUsage', '$status')";
         }
 
@@ -265,7 +259,7 @@ if ($result->num_rows > 0) {
 } else {
     echo "Aucun équipement trouvé pour l'ID spécifié.";
     exit;
-}}
+}
 $conn->close();
 ?>
 <!DOCTYPE html>
@@ -414,7 +408,7 @@ $conn->close();
     // Recharger la page toutes les 20 secondes
     setInterval(function(){
         window.location.reload();
-    }, 10000);
+    }, 30000);
 </script>
 <?php require('footer.php');?>
 </body>

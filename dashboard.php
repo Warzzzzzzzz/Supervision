@@ -2,6 +2,7 @@
 include("session_check.php");
 require('accessDB.php');
 
+
 $message = '';
 $search_query = '';
 
@@ -9,7 +10,7 @@ if (isset($_GET['submit'])) {
     $search_query = $_GET['search'];
 }
 
-$sql = "SELECT e.ID_EQUIPEMENTS, e.LIBELLE_EQUIPEMENTS, e.NAME_EQUIPEMENT, e.created_at, e.temp_cpu
+$sql = "SELECT e.ID_EQUIPEMENTS, e.LIBELLE_EQUIPEMENTS, e.NAME_EQUIPEMENT, e.created_at, e.temp_cpu, e.utilisation_cpu, e.status_s
         FROM equipements e
         INNER JOIN (
             SELECT NAME_EQUIPEMENT, MAX(created_at) as MaxDate
@@ -29,6 +30,8 @@ if (!empty($search_query)) {
 }
 $stmt->execute();
 $result = $stmt->get_result();
+
+$alarms = [];
 ?>
 
 <!DOCTYPE html>
@@ -85,9 +88,29 @@ $result = $stmt->get_result();
     if ($result->num_rows > 0) {
         while ($row = $result->fetch_assoc()) {
             $highlight = (!empty($search_query) && stripos($row['NAME_EQUIPEMENT'], $search_query) !== false) ? 'table-warning' : '';
-            $has_alarm = $row['temp_cpu'] > 65;
-            $alarm_class = $has_alarm ? 'btn-alarm' : '';
-            $alarm_text = $has_alarm ? 'Alarme' : 'Pas d\'alarme';
+            $has_temp_alarm = $row['temp_cpu'] > 65;
+            $has_cpu_alarm = $row['utilisation_cpu'] > 70;
+            $has_status_alarm = $row['status_s'] == 0;
+            $alarm_class = ($has_temp_alarm || $has_cpu_alarm || $has_status_alarm) ? 'btn-alarm' : '';
+            $alarm_text = '';
+
+            if ($has_temp_alarm) {
+                $alarm_text .= 'Température CPU élevée ';
+            }
+            if ($has_cpu_alarm) {
+                $alarm_text .= 'Utilisation CPU élevée ';
+            }
+            if ($has_status_alarm) {
+                $alarm_text .= 'Statut de l\'équipement ';
+            }
+            if (empty($alarm_text)) {
+                $alarm_text = 'Pas d\'alarme';
+            } else {
+                $alarms[] = [
+                    'name' => $row['NAME_EQUIPEMENT'],
+                    'cause' => trim($alarm_text)
+                ];
+            }
 
             echo "<tr class='$highlight'>";
             echo "<td>" . htmlspecialchars($row['LIBELLE_EQUIPEMENTS']) . "</td>";
@@ -116,11 +139,41 @@ $result = $stmt->get_result();
         </table>
     </div>
 </main>
+<!-- Modal -->
+<div class="modal fade" id="alarmModal" tabindex="-1" aria-labelledby="alarmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="alarmModalLabel">Alarmes Actives</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <?php
+                if (!empty($alarms)) {
+                    foreach ($alarms as $alarm) {
+                        echo "<p><strong>" . htmlspecialchars($alarm['name']) . ":</strong> " . htmlspecialchars($alarm['cause']) . "</p>";
+                    }
+                }
+                ?>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-    // Recharger la page toutes les 10 secondes
+    // Recharger la page toutes les 30 secondes
     setInterval(function(){
         window.location.reload();
-    }, 10000);
+    }, 30000);
+
+    // Afficher le pop-up s'il y a des alarmes
+    <?php if (!empty($alarms)) { ?>
+        var modal = new bootstrap.Modal(document.getElementById('alarmModal'));
+        modal.show();
+    <?php } ?>
 </script>
 <?php require('footer.php');?>
 </body>
