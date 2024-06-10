@@ -1,6 +1,6 @@
 <?php
-
 include("session_check.php");
+include("accessDB.php");
 
 if (!isset($_SESSION['id_user'])) {
     header("Location: index.php");
@@ -45,7 +45,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
         $message = "Le mot de passe actuel est incorrect.";
     }
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="fr">

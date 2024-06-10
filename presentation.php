@@ -47,7 +47,7 @@ $alarm_count = $alarm_result->num_rows;
 <body>
   <?php require('header.php');?>
   <main>
-    <img src="./img/2.png" class="presentation">
+    <a href="./doc/rapport_projet.pdf" download="rapport_projet.pdf">Télécharger le rapport</a>
   </main>
 <?php require('footer.php');?>
 </body>
